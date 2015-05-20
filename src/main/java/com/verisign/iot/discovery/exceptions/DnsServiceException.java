@@ -1,0 +1,93 @@
+package com.verisign.iot.discovery.exceptions;
+
+import com.verisign.iot.discovery.commons.StatusCode;
+import java.util.Map;
+
+/**
+ * Specific DNS Service Exception encapsulating a <code>StatusCode</code>
+ * identifying uniquely the detected error, plus a <code>Map</code> of traced
+ * recoverable errors caught till the exception raising time.
+ *
+ * @author pmaresca <pmaresca@verisign.com>
+ * @version 1.0
+ * @since 2015/05/02
+ */
+public class DnsServiceException extends Exception {
+
+	protected static final long serialVersionUID = 1997753363232807009L;
+
+	/**
+	 * A <code>StatusCode</code> identifying the detected error
+	 */
+	protected StatusCode raisingError;
+	/**
+	 * A <code>Map</code> containing a set of recoverable error(s) till this
+	 * exception raising time
+	 */
+	protected Map<String, StatusCode> errorsTrace;
+
+	/**
+	 * Two arguments constructor: a message decorates the caught error.
+	 *
+	 * @param error Caught error
+	 * @param message A decorating message
+	 */
+	public DnsServiceException(StatusCode error, String message) {
+		super(error.toString() + ": " + message);
+		this.raisingError = error;
+	}
+
+	public DnsServiceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+	}
+
+	/**
+	 * Return the caught error associated to this instance.
+	 *
+	 * @return The error code and its brief
+	 */
+	public final StatusCode dnsError() {
+		return this.raisingError;
+	}
+
+	/**
+	 * Set the error(s) trace <code>Map</code>
+	 *
+	 * @param errors A <code>Map</code> containing caught recoverable errors
+	 */
+	public final void setErrorsTrace(Map<String, StatusCode> errors) {
+		this.errorsTrace = errors;
+	}
+
+	/**
+	 * Return the error(s) trace <code>Map</code>.
+	 *
+	 * @return A <code>Map</code> containing the error(s) trace
+	 */
+	public final Map<String, StatusCode> getErrorsTrace() {
+		return this.errorsTrace;
+	}
+
+	/**
+	 * Generate a printable version of the error(s) trace.
+	 *
+	 * @return A <code>String</code> with a printable version of the error(s)
+	 * trace
+	 */
+	public final String printableErrorsTrace() {
+		StringBuilder builder = new StringBuilder();
+        builder.append(";; ERROR TRACE\n");
+		if (this.errorsTrace != null) {
+			for (String key : this.errorsTrace.keySet()) {
+				builder.append(key)
+                       .append(": ")
+                       .append(this.errorsTrace.get(key).toString()
+                           .substring(0, this.errorsTrace.get(key).toString().length() - 1))
+                       .append("\n");
+			}
+		}
+
+		return builder.toString();
+	}
+
+}
