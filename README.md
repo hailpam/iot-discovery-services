@@ -1,4 +1,4 @@
-# IoT Discovery Services
+# IoT Discovery Services Java APIs
 
 ## Intro
 
