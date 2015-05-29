@@ -284,7 +284,18 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
                 statusChange(FormattingUtil.server(server));
                 try {
                     Record[] records = lookup(ctx);
-                    parseRecords(records, set, "", RrHolderType.TYPES);
+										for(Record record: records){
+												String[] serviceTypeNameLabels = record.rdataToString().split( "\\." );
+												String dnsLabel = serviceTypeNameLabels[0] + "." + serviceTypeNameLabels[1];
+												String labelRecordName = dnsLabel + "._label";
+
+												LookupContext labelRecordContext = context( browsingDomain, labelRecordName, "", "", Type.PTR, secValidation );
+												labelRecordContext.setResolver( resolver );
+												Record[] nameRecordArray = lookup( labelRecordContext );
+												Record nameRecord = nameRecordArray[0];
+												String serviceTypeName = nameRecord.rdataToString().split( "\\." )[0];
+												set.getLabels().add( serviceTypeName );
+										}
                     statusChange(StatusChangeEvent.build(browsingDomain.fqdn(), Type.string(Type.PTR),
                             StatusChangeEvent.castedList(set.getLabels())));
                 } catch (LookupException le) {
