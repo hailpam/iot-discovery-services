@@ -62,7 +62,7 @@ public abstract class DiscoveryRecord implements Comparable<DiscoveryRecord> {
     public abstract String getServiceName(String dnsLabel);
 
     /**
-     * Serialize this Discovert Record into a display format.
+     * Serialize this Discovery Record into a display format.
      *
      * @return A <code>String</code> with a representable version of this
      * <code>DiscoveryRecord</code>

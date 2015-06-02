@@ -117,7 +117,7 @@ public final class DnsUtil {
                     }
                 }
                 throw ExceptionsUtil.build(StatusCode.RESOURCE_INSECURE_ERROR,
-                        String.format("Failed DNESSEC validation for [%s]: [%s]", name, reason.toString()),
+                        String.format("Failed DNSSEC validation for [%s]: [%s]", name, reason.toString()),
                         new LinkedHashMap<String, StatusCode>());
             }
         } catch (IOException e) {
