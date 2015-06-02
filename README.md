@@ -2,29 +2,73 @@
 Kiaora, and welcome to the iot-discovery-services project.
 The main purpose of the discovery library is to allow its clients (device, gateway, etc.) to securely discover services (eg. a message broker) and configuration (eg. topic names) for a specific service type (eg. MQTT) in a given domain name.
 It implements the [DNS-SD IETF RFC 7673 ](https://tools.ietf.org/html/rfc6763) which specifies how DNS resource records are named and structured to facilitate service discovery.
+
+## Build
+This is a Gradle project.
+
+```
+$ cd $PROJECT_HOME
+$ gradle clean fatJar
+```
+
+
 ##Service Discovery workflow
 
 In order to perform service discovery, the first thing to do is to add the relevant records to DNS. As per the RFC, you need to provision a <service.domain> PTR record, which will point to the corresponding <instance.service.domain> SRV record(s). 
 After the provisioning is done, you can lookup service instance names by service types for the domain name.
 
-Below, we see a user provisioning a mqtt service named "iot.eclipse.org:1883" under domain name "example.com".
+On the image below, a user is provisioning a mqtt service with the URL "iot.eclipse.org:1883" under domain name "example.com".
 
 Using the iot-discovery-services library, the device then looks up services of type "mqtt" under domain name "example.com" and finds "iot.eclipse.org:1883".
 
 
 ![Provisioning and resolution workflow](https://github.com/rpiccand/iot-discovery-services/blob/master/img/dns-sd%20workflow.png)
 
-## Build Process
-This is a Gradle project, so pretty intuitive to build up. Hereafter a simple example on how to get started in building
-
-```
-cd $PROJECT_HOME
-gradle clean fatJar
-```
-
 ## Using the Library
+Here is a simple example which retrieves the "mqtt" service instances from "7pqg77uhvroq.1.iotverisign.com". Any DNS resolver can be used - however, to be considered secure, the Discovery process must rely on a DNSSEC validating resolver, which is the case for Verisign's 198.41.1.1. Also, the domain name must be dnssec-enabled.
+
+```
+package com.verisign.iot.discovery;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.Set;
+
+import com.verisign.iot.discovery.domain.Fqdn;
+import com.verisign.iot.discovery.domain.ServiceInstance;
+import com.verisign.iot.discovery.exceptions.ConfigurationException;
+import com.verisign.iot.discovery.exceptions.LookupException;
+import com.verisign.iot.discovery.services.DnsServicesDiscovery;
+
+public class Discoverer {
+
+	public static void main(String[] args) throws IOException, LookupException,
+			ConfigurationException {
+
+		Fqdn fullyQualifiedDomainName = new Fqdn("7pqg77uhvroq.1.iotverisign.com");
+		String serviceType = "mqtt";
+		String dnsResolver = "198.41.1.1";
+		boolean checkDnssec = true;
+
+		DnsServicesDiscovery discoverer = new DnsServicesDiscovery();
+		discoverer.dnsServer(InetAddress.getByName(dnsResolver));
+
+		Set<ServiceInstance> discoveryResult = discoverer.listServiceInstances(
+				fullyQualifiedDomainName, serviceType, checkDnssec);
+
+		for (ServiceInstance serviceInstance : discoveryResult) {
+			System.out.println(serviceInstance);
+		}
+
+	}
+
+}
+
+
+```
 
 ## Using DNSSEC to secure the discovery process
+The Domain Name System Security Extensions (DNSSec) is a technology designed to ensure the authenticity of DNS records  by applying PKI principles. The iot-discovery-services library validates the DNSSec records, which ensures that they are trustworthy. 
 
 ## Going further into DNS-SD DNS Records
 The iot-discovery-services library abstracts the complexity of using raw DNS records. For the sake of completeness, this section describes a concrete example of provisioned DNS Records for service discovery. We use the command line [bind utility dig](https://www.isc.org/downloads/bind/) to retrieve the DNS Records. The domain name used to host this example is 7pqg77uhvroq.1.iotverisign.com.
