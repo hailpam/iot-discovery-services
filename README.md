@@ -38,7 +38,7 @@ $ dig +noall +answer _services._dns-sd._udp.7pqg77uhvroq.1.iotverisign.com PTR
 _services._dns-sd._udp.7pqg77uhvroq.1.iotverisign.com. 5 IN PTR	_mqtt._tcp.tkatlvzsjaoq.1.iotverisign.com.
 
 ```
-The response indicates that there is one service type which label is "_mqtt._tcp at tkatlvzsjaoq.1.iotverisign.com". 
+The response indicates that there is one service type which label is "_mqtt._tcp" at "tkatlvzsjaoq.1.iotverisign.com". 
  
 ### Listing service names
 Using the service type label, this command will list the existing names for "mqtt" services. It is a query for PTR records for the "_mqtt._tcp" label.
