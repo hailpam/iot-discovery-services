@@ -68,11 +68,11 @@ public interface DnsDiscovery extends DnsSecChecker {
 	 * List the TLSA Resource Records under the provided domain for the specified <i>label</i>.
 	 *
 	 * @param browsingDomain A <code>Fqdn</code> referring the browsing domain
-	 * @param label          A <code>String</code> identifying the label to be looked up
+	 * @param tlsaPrefix          An object which provides the TLSA record prefix based on port and protocol
 	 * @return A set of <code>TLSADiscoveryRecord</code> objects
 	 * @throws LookupException        In case of any unrecoverable error during the lookup process.
 	 * @throws ConfigurationException In case of wrong/faulty static and/or runtime configuration.
 	 */
-	Set<TLSADiscoveryRecord> listTLSARecords ( Fqdn browsingDomain, String label, boolean secValidation ) throws LookupException,
+	Set<TLSADiscoveryRecord> listTLSARecords ( Fqdn browsingDomain, TLSAPrefix tlsaPrefix, boolean secValidation ) throws LookupException,
 			ConfigurationException;
 }

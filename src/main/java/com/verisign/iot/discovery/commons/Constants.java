@@ -54,6 +54,16 @@ public final class Constants {
 	public static final String UDP = "_udp";
 
 	/**
+	 * Default protocol for TLSA record prefix
+	 */
+	public static final String TLSA_DEFAULT_PROTOCOL = "tcp";
+
+	/**
+	 * Default port for TLSA record prefix
+	 */
+	public static final int TLSA_DEFAULT_PORT = 0;
+
+	/**
 	 * Service Discovery specific prefix.
 	 */
 	public static final String SERVICES_DNS_SD_UDP = "_services._dns-sd._udp";

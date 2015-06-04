@@ -169,18 +169,16 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
 
 
 	@Override
-	public Set<TLSADiscoveryRecord> listTLSARecords ( Fqdn browsingDomain, String port, boolean secValidation )
+	public Set<TLSADiscoveryRecord> listTLSARecords ( Fqdn browsingDomain, TLSAPrefix tlsaPrefix, boolean secValidation )
 			throws LookupException, ConfigurationException {
 		ValidatorUtil.isValidDomainName( browsingDomain );
-		ValidatorUtil.isValidPort( port );
 		validatedConf();
 		Set<TLSADiscoveryRecord> result = new TreeSet<>();
 		try {
-			result.addAll( this.helper.tlsaRecords( browsingDomain, port, secValidation ) );
+			result.addAll( this.helper.tlsaRecords( browsingDomain, tlsaPrefix, secValidation ) );
 			if ( result.isEmpty() && !this.errorsTrace.get().isEmpty() ) {
 				throw ExceptionsUtil.build( StatusCode.RESOURCE_LOOKUP_ERROR,
-						String.format( "Unable to resolve [%s]", FormattingUtil.getTLSAFQDNFromDomainAndPort( browsingDomain.domain(),
-								port ) ),
+						String.format( "Unable to resolve [%s]", browsingDomain.domain() ),
 						errorsTrace.get() );
 			}
 		}
@@ -525,13 +523,13 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
 		}
 
 
-		public Set<TLSADiscoveryRecord> tlsaRecords ( Fqdn browsingDomain, String port, boolean secValidation )
+		public Set<TLSADiscoveryRecord> tlsaRecords ( Fqdn browsingDomain, TLSAPrefix tlsaPrefix, boolean secValidation )
 				throws LookupException, ConfigurationException {
 			Map<String, Resolver> resolvers = retrieveResolvers( secValidation );
 			Set<TLSADiscoveryRecord> tlsaDiscoveryRecords = new TreeSet<>();
 			DnsServicesDiscovery.this.errorsTrace.get().clear();
 			Iterator<String> itrResolvers = resolvers.keySet().iterator();
-			String tlsaFqdn = FormattingUtil.getTLSAFQDNFromDomainAndPort( browsingDomain.domain(), port );
+			String tlsaFqdn = tlsaPrefix.toString() + Constants.DNS_LABEL_DELIMITER + browsingDomain.domain();
 			Fqdn browsingDomainWithTLSAPrefix = new Fqdn( tlsaFqdn );
 			LookupContext ctx = context( browsingDomainWithTLSAPrefix, "", "", "", Type.TLSA, secValidation );
 			String server;
@@ -559,8 +557,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
 					}
 					else {
 						DnsServicesDiscovery.this.errorsTrace.get().put(
-								ExceptionsUtil.traceKey( resolver, FormattingUtil.getTLSAFQDNFromDomainAndPort( browsingDomain.domain(),
-												port ),
+								ExceptionsUtil.traceKey( resolver, browsingDomain.domain(),
 										"Retrieving-Instances" ),
 								le.dnsError() );
 					}

@@ -1,16 +1,18 @@
 package com.verisign.iot.discovery.domain;
 
-import com.verisign.iot.discovery.utils.EncodingUtil;
 import org.xbill.DNS.TLSARecord;
+import org.xbill.DNS.utils.base16;
 
 /**
  * Created by tjmurphy on 6/1/15.
  */
 public class TLSADiscoveryRecord extends DiscoveryRecord {
 
+	private TLSARecord tlsaRecord;
 
 	public TLSADiscoveryRecord ( TLSARecord tlsaRecord ) {
-		super(EncodingUtil.bytesToHex( tlsaRecord.getCertificateAssociationData() ), tlsaRecord.getTTL());
+		super( base16.toString( tlsaRecord.getCertificateAssociationData() ), tlsaRecord.getTTL());
+		this.tlsaRecord = tlsaRecord;
 	}
 
 
