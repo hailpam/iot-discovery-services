@@ -30,6 +30,11 @@ public final class Constants {
 	public static final String DNS_LABEL_DELIMITER = ".";
 
 	/**
+	 * TXT Record prefix for device placeholder records
+	 */
+	public static final String TXT_RECORD_PREFIX = "_x";
+
+	/**
 	 * The Label associated with PTR records for a service.
 	 */
 	public static final String LABEL = "._label";

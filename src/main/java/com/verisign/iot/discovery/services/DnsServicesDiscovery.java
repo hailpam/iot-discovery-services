@@ -12,15 +12,7 @@ import com.verisign.iot.discovery.utils.*;
 
 import java.util.*;
 
-import org.xbill.DNS.Cache;
-import org.xbill.DNS.DClass;
-import org.xbill.DNS.Lookup;
-import org.xbill.DNS.PTRRecord;
-import org.xbill.DNS.Record;
-import org.xbill.DNS.Resolver;
-import org.xbill.DNS.SRVRecord;
-import org.xbill.DNS.TXTRecord;
-import org.xbill.DNS.Type;
+import org.xbill.DNS.*;
 
 /**
  * Class encapsulating the DNS-SD Service Lookup facilities.
@@ -177,18 +169,18 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
 
 
 	@Override
-	public Set<TLSADiscoveryRecord> listTLSARecords ( Fqdn browsingDomain, String label, boolean secValidation )
+	public Set<TLSADiscoveryRecord> listTLSARecords ( Fqdn browsingDomain, String port, boolean secValidation )
 			throws LookupException, ConfigurationException {
 		ValidatorUtil.isValidDomainName( browsingDomain );
-		ValidatorUtil.isValidLabel( label );
+		ValidatorUtil.isValidPort( port );
 		validatedConf();
-		Set<TLSADiscoveryRecord> result = null;
+		Set<TLSADiscoveryRecord> result = new TreeSet<>();
 		try {
-			result = new LinkedHashSet<>();
-			result.addAll( this.helper.tlsaRecords( browsingDomain, label, secValidation ) );
+			result.addAll( this.helper.tlsaRecords( browsingDomain, port, secValidation ) );
 			if ( result.isEmpty() && !this.errorsTrace.get().isEmpty() ) {
 				throw ExceptionsUtil.build( StatusCode.RESOURCE_LOOKUP_ERROR,
-						String.format( "Unable to resolve [%s]", browsingDomain.fqdnWithPrefix( label ) ),
+						String.format( "Unable to resolve [%s]", FormattingUtil.getTLSAFQDNFromDomainAndPort( browsingDomain.domain(),
+								port ) ),
 						errorsTrace.get() );
 			}
 		}
@@ -199,7 +191,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
 			errorsTrace.remove();
 		}
 
-		return null;
+		return result;
 	}
 
 
@@ -533,10 +525,48 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
 		}
 
 
-		public Set<TLSADiscoveryRecord> tlsaRecords ( Fqdn browsingDomain, String type, boolean secValidation )
-				throws LookupException {
-
+		public Set<TLSADiscoveryRecord> tlsaRecords ( Fqdn browsingDomain, String port, boolean secValidation )
+				throws LookupException, ConfigurationException {
+			Map<String, Resolver> resolvers = retrieveResolvers( secValidation );
 			Set<TLSADiscoveryRecord> tlsaDiscoveryRecords = new TreeSet<>();
+			DnsServicesDiscovery.this.errorsTrace.get().clear();
+			Iterator<String> itrResolvers = resolvers.keySet().iterator();
+			String tlsaFqdn = FormattingUtil.getTLSAFQDNFromDomainAndPort( browsingDomain.domain(), port );
+			Fqdn browsingDomainWithTLSAPrefix = new Fqdn( tlsaFqdn );
+			LookupContext ctx = context( browsingDomainWithTLSAPrefix, "", "", "", Type.TLSA, secValidation );
+			String server;
+			do {
+				server = itrResolvers.next();
+				Resolver resolver = resolvers.get( server );
+				ctx.setResolver( resolver );
+				statusChange( FormattingUtil.server( server ) );
+				try {
+					Record[] records = lookup( ctx );
+					for ( Record record : records ) {
+						if ( record instanceof TLSARecord ) {
+							tlsaDiscoveryRecords.add( new TLSADiscoveryRecord( (TLSARecord) record ) );
+						}
+					}
+				}
+				catch ( LookupException le ) {
+					if ( le.dnsError().equals( StatusCode.SERVER_ERROR )
+							|| le.dnsError().equals( StatusCode.RESOURCE_INSECURE_ERROR )
+							|| le.dnsError().equals( StatusCode.RESOLUTION_RR_TYPE_ERROR ) ) {
+						throw le;
+					}
+					else if ( le.dnsError().equals( StatusCode.RESOLUTION_NAME_ERROR ) ) {
+						serviceTexts( browsingDomain, Constants.TXT_RECORD_PREFIX, secValidation );
+					}
+					else {
+						DnsServicesDiscovery.this.errorsTrace.get().put(
+								ExceptionsUtil.traceKey( resolver, FormattingUtil.getTLSAFQDNFromDomainAndPort( browsingDomain.domain(),
+												port ),
+										"Retrieving-Instances" ),
+								le.dnsError() );
+					}
+				}
+			}
+			while ( itrResolvers.hasNext() && tlsaDiscoveryRecords.isEmpty() );
 
 			return tlsaDiscoveryRecords;
 		}

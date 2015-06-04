@@ -34,6 +34,6 @@ public class TLSADiscoveryRecord extends DiscoveryRecord {
 
 	@Override
 	public String toDisplay () {
-		return this.rData;
+		return String.format("%s %d", rData, ttl);
 	}
 }

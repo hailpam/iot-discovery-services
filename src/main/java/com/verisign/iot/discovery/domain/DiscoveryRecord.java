@@ -102,7 +102,7 @@ public abstract class DiscoveryRecord implements Comparable<DiscoveryRecord> {
 
     @Override
     public String toString() {
-        return String.format("%s %d", this.ttl, this.rData);
+        return String.format("%d %s", this.ttl, this.rData);
     }
 
 }
