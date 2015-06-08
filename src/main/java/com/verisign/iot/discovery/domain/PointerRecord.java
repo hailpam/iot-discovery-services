@@ -1,6 +1,7 @@
 package com.verisign.iot.discovery.domain;
 
 import com.verisign.iot.discovery.commons.Constants;
+import com.verisign.iot.discovery.utils.RDataUtil;
 import org.xbill.DNS.PTRRecord;
 
 /**
@@ -32,7 +33,7 @@ public class PointerRecord extends DiscoveryRecord {
      * @return <code>null</code> in case DNS Label is not contained, the Label itself otherwise
      */
     public String getDnsLabel() {
-        return this.rData.contains(Constants.LABEL) ? this.rData.substring(0, this.rData.indexOf(Constants.LABEL)) : null;
+        return RDataUtil.getDnsLabelFromRData( this.rData );
     }
 
     /**
