@@ -78,44 +78,6 @@ public final class FormattingUtil {
 	}
 
 
-	public static String getTLSAFQDNFromDomainAndPort ( String browsingDomain, String portString )
-			throws IllegalArgumentException {
-		ValidatorUtil.isValidDomainName( browsingDomain );
-		if ( !ValidatorUtil.isValidPort( portString ) ) {
-			throw new IllegalArgumentException( portString + "is not a valid port number" );
-		}
-
-		String tlsaFqdn = "";
-		if ( browsingDomain.contains( Constants.TCP ) ) {
-			String[] browsingDomainLabels = browsingDomain.split( "\\." );
-			if ( !browsingDomainLabels[1].equals( Constants.TCP ) ) {
-				throw new IllegalArgumentException( "_tcp not in proper label position, " +
-						"tlsa prefix (_<port>._tcp) should be excluded or _tcp should be second label." );
-			}
-			String portLabel = browsingDomainLabels[0];
-			String parsedPortString;
-			if ( portLabel.startsWith( "_" ) ) {
-				parsedPortString = portLabel.substring( 1 );
-			}
-			else {
-				parsedPortString = portLabel;
-			}
-			if ( !ValidatorUtil.isValidPort( parsedPortString ) ) {
-				throw new IllegalArgumentException( parsedPortString + "is not a valid port number" );
-			}
-			if ( !parsedPortString.equals( portString ) ) {
-				throw new IllegalArgumentException( "Port number in tlsa prefix does not match port argument value" );
-			}
-			tlsaFqdn = browsingDomain;
-		}
-		else {
-			tlsaFqdn = "_" + portString + Constants.DNS_LABEL_DELIMITER + Constants.TCP + Constants.DNS_LABEL_DELIMITER + browsingDomain;
-		}
-
-		return tlsaFqdn;
-	}
-
-
 	private FormattingUtil () {
 		throw new AssertionError( String.format( "No instances of %s for you!",
 				this.getClass().getName() ) );

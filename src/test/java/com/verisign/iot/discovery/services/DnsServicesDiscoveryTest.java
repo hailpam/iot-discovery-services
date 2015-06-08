@@ -154,7 +154,7 @@ public class DnsServicesDiscoveryTest implements Observer {
     }
 
     @Test
-    public void checkDnsSecErrorNonExistenDNS() {
+    public void checkDnsSecErrorNonExistentDNS() {
         try {
             this.discovery = new DnsServicesDiscovery();
             this.discovery

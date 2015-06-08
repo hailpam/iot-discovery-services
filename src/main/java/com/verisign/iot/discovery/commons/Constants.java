@@ -63,6 +63,9 @@ public final class Constants {
 	 */
 	public static final int TLSA_DEFAULT_PORT = 0;
 
+
+	public static final char COLON_UNICODE_CHAR = ':';
+
 	/**
 	 * Service Discovery specific prefix.
 	 */

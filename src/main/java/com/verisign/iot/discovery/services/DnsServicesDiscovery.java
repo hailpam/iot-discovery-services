@@ -320,9 +320,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
 				}
 				catch ( LookupException le ) {
 					if ( le.dnsError().equals( StatusCode.SERVER_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOURCE_INSECURE_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOLUTION_NAME_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOLUTION_RR_TYPE_ERROR ) ) {
+							|| le.dnsError().equals( StatusCode.RESOURCE_INSECURE_ERROR ) ) {
 						throw le;
 					}
 					else {
@@ -372,9 +370,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
 				}
 				catch ( LookupException le ) {
 					if ( le.dnsError().equals( StatusCode.SERVER_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOURCE_INSECURE_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOLUTION_NAME_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOLUTION_RR_TYPE_ERROR ) ) {
+							|| le.dnsError().equals( StatusCode.RESOURCE_INSECURE_ERROR ) ) {
 						throw le;
 					}
 					else {
@@ -440,9 +436,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
 				}
 				catch ( LookupException le ) {
 					if ( le.dnsError().equals( StatusCode.SERVER_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOURCE_INSECURE_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOLUTION_NAME_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOLUTION_RR_TYPE_ERROR ) ) {
+							|| le.dnsError().equals( StatusCode.RESOURCE_INSECURE_ERROR ) ) {
 						throw le;
 					}
 					else {
@@ -504,9 +498,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
 				}
 				catch ( LookupException le ) {
 					if ( le.dnsError().equals( StatusCode.SERVER_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOURCE_INSECURE_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOLUTION_NAME_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOLUTION_RR_TYPE_ERROR ) ) {
+							|| le.dnsError().equals( StatusCode.RESOURCE_INSECURE_ERROR ) ) {
 						throw le;
 					}
 					else {
@@ -548,12 +540,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
 				}
 				catch ( LookupException le ) {
 					if ( le.dnsError().equals( StatusCode.SERVER_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOURCE_INSECURE_ERROR )
-							|| le.dnsError().equals( StatusCode.RESOLUTION_RR_TYPE_ERROR ) ) {
+							|| le.dnsError().equals( StatusCode.RESOURCE_INSECURE_ERROR ) ) {
 						throw le;
-					}
-					else if ( le.dnsError().equals( StatusCode.RESOLUTION_NAME_ERROR ) ) {
-						serviceTexts( browsingDomain, Constants.TXT_RECORD_PREFIX, secValidation );
 					}
 					else {
 						DnsServicesDiscovery.this.errorsTrace.get().put(
@@ -584,12 +572,14 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
 					DnsServicesDiscovery.this.smimeACache );
 			ctx.setLookup( lookup );
 			Record[] records = lookup.run();
+			if ( records == null ) {
+				return new Record[0];
+			}
 			statusChange( FormattingUtil.query( ctx.getDomainName(), ctx.getPrefix(),
 					Type.string( ctx.getRrType() ) ) );
 			StatusCode outcome = DnsUtil.checkLookupStatus( lookup, ctx.getResolver(),
 					ctx.getDomainName(), ctx.isSecure() );
-			if ( outcome.equals( StatusCode.SERVER_ERROR ) || outcome.equals( StatusCode.RESOLUTION_NAME_ERROR )
-					|| outcome.equals( StatusCode.RESOLUTION_RR_TYPE_ERROR ) ) {
+			if ( outcome.equals( StatusCode.SERVER_ERROR ) ) {
 				throw ExceptionsUtil.build( outcome, String.format( "Unable to resolve [%s]",
 								ctx.getDomainName() ),
 						DnsServicesDiscovery.this.errorsTrace.get() );

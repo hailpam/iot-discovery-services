@@ -11,54 +11,73 @@ public class TLSAPrefix {
 	private int port;
 	private String protocol;
 
-	public TLSAPrefix(){
+
+	public TLSAPrefix () {
 		setDefaultValues();
 	}
 
-	public TLSAPrefix(String initString){
+
+	public TLSAPrefix ( String initString ) {
 		parseInitString( initString );
 	}
 
-	public void reinitialize(){
+
+	public void reinitialize () {
 		reinitialize( null );
 	}
 
-	public void reinitialize(String initString){
+
+	public void reinitialize ( String initString ) {
 		parseInitString( initString );
 	}
 
-	public int getPort(){
+
+	public int getPort () {
 		return port;
 	}
 
-	public String getProtocol(){
+
+	public String getProtocol () {
 		return protocol;
 	}
 
-	private void parseInitString(String initString){
-		if(initString == null || initString.trim().isEmpty()){
+
+	private void parseInitString ( String initString ) {
+		if ( initString == null || initString.trim().isEmpty() ) {
 			setDefaultValues();
-		}else{
-			int delimiterIndex = initString.indexOf( Character.getNumericValue( ':' ) );
-			if(delimiterIndex == -1){
+		}
+		else {
+			initString = initString.trim();
+			int delimiterIndex = initString.indexOf( Constants.COLON_UNICODE_CHAR );
+			if ( delimiterIndex == -1 ) {
 				protocol = Constants.TLSA_DEFAULT_PROTOCOL;
-				if ( ValidatorUtil.isValidPort( initString ) ){
+				if ( ValidatorUtil.isValidPort( initString ) ) {
 					port = Integer.parseInt( initString );
 				}
-			}else if(delimiterIndex == 0){
+				else {
+					throw new IllegalArgumentException( "invalid port value" );
+				}
+			}
+			else if ( delimiterIndex == 0 ) {
 				port = Constants.TLSA_DEFAULT_PORT;
 				protocol = initString.substring( 1 );
-			}else{
-				String portString = initString.substring( 0, delimiterIndex);
-				if(ValidatorUtil.isValidPort( portString )){
+			}
+			else {
+				String portString = initString.substring( 0, delimiterIndex );
+				if ( ValidatorUtil.isValidPort( portString ) ) {
 					port = Integer.parseInt( portString );
 				}
-				protocol = initString.substring( delimiterIndex +1 );
+				else {
+					throw new IllegalArgumentException( "invalid port value" );
+				}
+				protocol = initString.substring( delimiterIndex + 1 );
+				protocol = protocol.length() > 0 ? protocol : Constants.TLSA_DEFAULT_PROTOCOL;
 			}
 		}
 	}
 
-	private void setDefaultValues(){
+
+	private void setDefaultValues () {
 		port = Constants.TLSA_DEFAULT_PORT;
 		protocol = Constants.TLSA_DEFAULT_PROTOCOL;
 	}

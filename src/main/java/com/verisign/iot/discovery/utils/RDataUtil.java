@@ -1,6 +1,8 @@
 package com.verisign.iot.discovery.utils;
 
 import com.verisign.iot.discovery.commons.Constants;
+import org.xbill.DNS.Name;
+import org.xbill.DNS.TextParseException;
 
 /**
  * Created by tjmurphy on 6/2/15.
@@ -13,28 +15,45 @@ public class RDataUtil {
 	 * @return dnsLabel
 	 */
 	public static String getDnsLabelFromRData(String rData){
+		if(rData == null || rData.trim().isEmpty()){
+			throw new IllegalArgumentException( "rData cannot be null, empty, or blank" );
+		}
+
 		if(rData.contains( Constants.LABEL )){
 			return rData.substring(0, rData.indexOf(Constants.LABEL));
 		}
 
-		String[] allDnsLabelsInRData = rData.split( "\\." );
-		if(allDnsLabelsInRData.length < 2){
-			return null;
+		Name nameInRData = null;
+		try{
+			nameInRData = new Name( rData.trim() );
+		} catch(TextParseException tpe){
+			throw new IllegalArgumentException( "rData must be valid domain name" );
 		}
 
-		String transportProtocolLabel = allDnsLabelsInRData[1];
+		if(nameInRData.labels() < 2){
+			throw new IllegalArgumentException( "rData does not have enough labels to return dns label for a service type" );
+		}
+
+		String transportProtocolLabel = nameInRData.getLabelString( 1 );
 		if(transportProtocolLabel.equals( Constants.TCP ) || transportProtocolLabel.equals( Constants.UDP )){
-			return allDnsLabelsInRData[0] + Constants.DNS_LABEL_DELIMITER + transportProtocolLabel;
+			return nameInRData.getLabelString( 0 ) + Constants.DNS_LABEL_DELIMITER + transportProtocolLabel;
 		}
 
-		return null;
+		throw new IllegalArgumentException( "could not extract dns label from rData" );
 	}
 
 	public static String getServiceTypeNameFromRData(String rData){
-		if(rData.contains( Constants.NAME )){
-			return rData.substring(0, rData.indexOf(Constants.NAME));
+		if(rData == null || rData.trim().isEmpty()){
+			throw new IllegalArgumentException( "rData cannot be null, empty, or blank" );
 		}
-		return null;
+
+		if(rData.contains( Constants.NAME )){
+			String serviceTypeName = rData.substring(0, rData.indexOf(Constants.NAME)).trim();
+			if(!serviceTypeName.isEmpty()){
+				return serviceTypeName;
+			}
+		}
+		throw new IllegalArgumentException( "could not extract service type name from rData" );
 	}
 
 }
