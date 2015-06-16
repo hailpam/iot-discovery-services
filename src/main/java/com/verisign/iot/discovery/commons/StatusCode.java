@@ -19,7 +19,7 @@ public enum StatusCode {
     RESOURCE_INSECURE_ERROR((short) 9505, "Unsecured DNS packet"),
     RESOURCE_UNEXPECTED((short) 9506, "Unexpected Resource Record Type"),
     SIGNATURE_ERROR((short) 9016, "DNS failed to verify"),
-    SERVER_ERROR((short) 9002, "DNS server failure"),
+    SERVER_ERROR((short) 9002, "DNS server error: refuses to serve the query"),
     RESOLUTION_NAME_ERROR((short) 9001, "DNS name does not exist"),
     RESOLUTION_RR_TYPE_ERROR((short) 9007, "RR Type does not exist");
 

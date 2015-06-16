@@ -15,12 +15,12 @@ import java.util.Map;
  * @since 2015/05/02
  */
 public final class ExceptionsUtil {
-    
+
     /** Date format pattern. */
     private static final String DATET_FORMAT = "yyyy-MM-dd HH:mm:ss";
     /** Date formatter. */
     private static final SimpleDateFormat FORMATTER = new SimpleDateFormat(DATET_FORMAT);
-    
+
 	/**
 	 * Build a <code>LookupException</code> and return its instance.
 	 *
@@ -60,6 +60,19 @@ public final class ExceptionsUtil {
 
 		return builder.toString();
 	}
+    /**
+     * 
+     * @param trace
+     * @return
+     */
+    public static boolean onlyNameResolutionTrace(Map<String, StatusCode> trace)
+    {
+        int cntr = 0;
+        for(StatusCode status: trace.values())
+            if(status.equals(StatusCode.RESOLUTION_NAME_ERROR)) cntr += 1;
+
+        return (cntr == trace.size());
+    }
 
 	private ExceptionsUtil() {
 		throw new AssertionError(String.format("No instances of %s for you!", this.getClass().getName()));

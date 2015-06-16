@@ -11,7 +11,7 @@ import com.verisign.iot.discovery.domain.Fqdn;
  */
 public final class ValidatorUtil {
 
-	public static final String FQDN_PATTERN = "^([(\\\\ )|(\\\\0-9)0-9a-zA-Z_-]+\\.){2,}$";
+	public static final String FQDN_PATTERN = "^([(\\\\ )|(\\\\0-9)0-9a-zA-Z_-]+\\.){1,}$";
 	public static final String DNS_SD_FQDN_PATTERN = "\\";
 	public static final int FQDN_LENGTH = 255;
 
@@ -90,13 +90,8 @@ public final class ValidatorUtil {
 	public static boolean isDnsSdDomainName ( String name ) {
 		return name.contains( DNS_SD_FQDN_PATTERN );
 	}
-
-
-	private ValidatorUtil () {
-		throw new AssertionError( String.format( "No instances of %s for you!", this.getClass().getName() ) );
-	}
-
-	public static boolean isValidPort(String portString){
+    
+    public static boolean isValidPort(String portString){
 		try{
 			int portInt = Integer.parseInt( portString );
 			if ( 0 <= portInt && portInt <= 65535 ){
@@ -106,4 +101,9 @@ public final class ValidatorUtil {
 		}
 		return false;
 	}
+
+	private ValidatorUtil () {
+		throw new AssertionError( String.format( "No instances of %s for you!", this.getClass().getName() ) );
+	}
+
 }

@@ -33,7 +33,20 @@ public class DnsServiceException extends Exception {
 	 * @param message A decorating message
 	 */
 	public DnsServiceException(StatusCode error, String message) {
-		super(error.toString() + ": " + message);
+		super(error.toString() + " " + message);
+		this.raisingError = error;
+	}
+
+    /**
+	 * Three arguments constructor: no message decoration for the caught error
+     * if <code>simple</code> is set to <code>true</code>.
+	 *
+	 * @param error Caught error
+	 * @param message A decorating message
+     * @param simple  <code>true</code> if no message decoration is needed
+	 */
+    public DnsServiceException(StatusCode error, String message, boolean simple) {
+		super(message);
 		this.raisingError = error;
 	}
 

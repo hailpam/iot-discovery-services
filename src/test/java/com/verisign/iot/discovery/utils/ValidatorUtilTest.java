@@ -2,9 +2,8 @@
 package com.verisign.iot.discovery.utils;
 
 import com.verisign.iot.discovery.domain.Fqdn;
-import org.junit.Assert;
 import org.junit.After;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,6 +64,18 @@ public class ValidatorUtilTest {
 		}
 		catch ( Exception e ) {
 			Assert.fail( "Expected a FQDN validatio failure " + invalidName );
+		}
+	}
+
+    @Test
+	public void rootDomain () {
+		Fqdn invalidName = null;
+		try {
+			invalidName = new Fqdn("com");
+			Assert.assertTrue( true );
+		}
+		catch ( Exception e ) {
+			Assert.fail( "Unexpected validation failure" );
 		}
 	}
 

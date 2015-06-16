@@ -37,6 +37,11 @@ import org.xbill.DNS.Type;
  */
 public final class DnsUtil {
 
+    private static final String INSECURE = "insecure";
+    private static final String NO_DATA = "nodata";
+    private static final String NO_SIGNATURE = "missing signature";
+
+
     /**
      * Instantiate a DNS <code>Resolver</code> by the provided Server. In case of DNSSEC validation
      * is needed, a <code>ValidatingResolver</code> is instantiated.
@@ -98,28 +103,34 @@ public final class DnsUtil {
             ValidatingResolver validating = (ValidatingResolver) resolver;
             Record toValidate = Record.newRecord(Name.fromConstantString(name.fqdn()), Type.A, DClass.IN);
             Message dnsResponse = validating.send(Message.newQuery(toValidate));
-            if (dnsResponse.getRcode() == Rcode.NXDOMAIN) {
-                // non existing domain
-                Map<String, StatusCode> errorsTrace = new LinkedHashMap<>();
-                errorsTrace.put(name.fqdn(), StatusCode.RESOLUTION_NAME_ERROR);
-                throw ExceptionsUtil.build(StatusCode.RESOLUTION_NAME_ERROR,
-                        String.format("Unable to resolve: [%s]", name),
-                        errorsTrace);
-            } else if (!dnsResponse.getHeader().getFlag(Flags.AD)
-                    && !(dnsResponse.getRcode() == Rcode.NOERROR)) {
-                // no AD Flag, and normally a SERVFAIL status
-                RRset[] rrSets = dnsResponse.getSectionRRsets(Section.ADDITIONAL);
-                StringBuilder reason = new StringBuilder("");
-                for (RRset rrset : rrSets) {
-                    if (rrset.getName().equals(Name.root) && rrset.getType() == Type.TXT
-                            && rrset.getDClass() == ValidatingResolver.VALIDATION_REASON_QCLASS) {
-                        reason.append(TextRecord.build((TXTRecord) rrset.first()).getRData());
-                    }
+            System.out.println(dnsResponse);
+            RRset[] rrSets = dnsResponse.getSectionRRsets(Section.ADDITIONAL);
+            StringBuilder reason = new StringBuilder("");
+            for (RRset rrset : rrSets) {
+                if (rrset.getName().equals(Name.root) && rrset.getType() == Type.TXT
+                        && rrset.getDClass() == ValidatingResolver.VALIDATION_REASON_QCLASS) {
+                    reason.append(TextRecord.build((TXTRecord) rrset.first()).getRData());
                 }
-                throw ExceptionsUtil.build(StatusCode.RESOURCE_INSECURE_ERROR,
-                        String.format("Failed DNSSEC validation for [%s]: [%s]", name, reason.toString()),
-                        new LinkedHashMap<String, StatusCode>());
             }
+            StatusCode outcome = StatusCode.SUCCESSFUL_OPERATION;
+            if(dnsResponse.getRcode() == Rcode.SERVFAIL) {
+                if(reason.toString().toLowerCase().contains(INSECURE))
+                    outcome = StatusCode.RESOURCE_INSECURE_ERROR;
+                else if(reason.toString().toLowerCase().contains(NO_SIGNATURE))
+                    outcome = StatusCode.RESOLUTION_NAME_ERROR;
+                else if(reason.toString().toLowerCase().contains(NO_DATA))
+                    outcome = StatusCode.NETWORK_ERROR;
+            }else if(dnsResponse.getRcode() == Rcode.NXDOMAIN) {
+                outcome = StatusCode.RESOLUTION_NAME_ERROR;
+            }else if(dnsResponse.getRcode() == Rcode.NOERROR &&
+                        !dnsResponse.getHeader().getFlag(Flags.AD)) {
+                outcome = StatusCode.RESOURCE_INSECURE_ERROR;
+            }
+
+            if(outcome != StatusCode.SUCCESSFUL_OPERATION)
+                throw ExceptionsUtil.build(outcome,
+                                           "DNSSEC Validation Failed",
+                                           new LinkedHashMap<String, StatusCode>());
         } catch (IOException e) {
             // it might be a transient error network: retry with next Resolver
             return false;
@@ -139,12 +150,10 @@ public final class DnsUtil {
      * @throws LookupException Containing the specific <code>StatusCode</code> defining the error
      * that has been raised.
      */
-    public static StatusCode checkLookupStatus(Lookup lookup, Resolver resolver, Fqdn name, boolean dnsSec)
+    public static StatusCode checkLookupStatus(Lookup lookup)
             throws LookupException {
         StatusCode outcome = null;
-        if (lookup.getResult() == Lookup.TRY_AGAIN && dnsSec) {
-            outcome = (checkDnsSec(name, resolver) ? StatusCode.SUCCESSFUL_OPERATION : StatusCode.NETWORK_ERROR);
-        } else if (lookup.getResult() == Lookup.TRY_AGAIN) {
+        if (lookup.getResult() == Lookup.TRY_AGAIN) {
             outcome = StatusCode.NETWORK_ERROR;
         } else if (lookup.getResult() == Lookup.UNRECOVERABLE) {
             outcome = StatusCode.SERVER_ERROR;

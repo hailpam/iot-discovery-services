@@ -23,9 +23,11 @@ import org.junit.Test;
 public class DnsServicesDiscoveryTest implements Observer {
 
     public static final String DNS_RESOVLER = "198.41.1.1";
+    public static final String BAD_RESOVLER = "1.2.3.4";
     public static final String SERVICE_TYPE = "coapspecial";
-    public static final String SERVICE_DOMAIN = "n67423p6tgxq.1.iotverisign.com";
+    public static final String SERVICE_DOMAIN = "";
     public static final String SERVICE_DOMAIN_1 = "kfjljohydgsa.1.iotqa.end-points.com";
+    public static final String TEST_DOMAIN = "com";
     public static final String SERVICE_LABEL = "coap";
     public static final String SERVICE_TYPE_1 = "mqft";
     public static final String SERVICE_NAME = "_coapspecial._udp.avu7unxcs7ia.1.iotverisign.com";
@@ -198,6 +200,30 @@ public class DnsServicesDiscoveryTest implements Observer {
     }
 
     @Test
+    public void checkDnsSecInvalid() {
+        try {
+            this.discovery = new DnsServicesDiscovery();
+            this.discovery
+                    .dnsSecDomain(Constants.DEFAULT_DNSSEC_DOMAIN)
+                    .trustAnchorDefault(Constants.DEFAULT_TRUST_ANCHOR)
+                    .dnsServer(InetAddress.getByName("1.2.3.4"))
+                    .introspected(true)
+                    .observer(this)
+                    .checkConfiguration(true);
+            this.discovery.isDnsSecValid(new Fqdn("google.coma"));
+            Assert.fail("Expected a validation error");
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+        catch (UnknownHostException ex) {
+            Assert.fail("Expected correct retrieval of localhost, not " + ex.toString());
+        }
+        catch (LookupException ex) {
+            Assert.assertTrue(true);
+        }
+    }
+
+    @Test
     public void listServiceRecords() {
         try {
             this.discovery = new DnsServicesDiscovery();
@@ -286,6 +312,34 @@ public class DnsServicesDiscoveryTest implements Observer {
             Assert.assertTrue(rec.size() == 1);
         } catch (LookupException ex) {
             Assert.fail("Expected correct initialization, not " + ex.toString());
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+    }
+
+    @Test
+    public void listServiceTextsBadResolver() {
+        try {
+            this.discovery = new DnsServicesDiscovery();
+            this.discovery
+                    .dnsSecDomain(Constants.DEFAULT_DNSSEC_DOMAIN)
+                    .dnsServer(InetAddress.getByName(BAD_RESOVLER))
+                    .trustAnchorDefault(Constants.DEFAULT_TRUST_ANCHOR)
+                    .introspected(true)
+                    .observer(this)
+                    .checkConfiguration(true);
+        } catch (UnknownHostException ex) {
+            Assert.fail("Expected correct initialization, not " + ex.toString());
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+        Fqdn name = new Fqdn(TEST_DOMAIN);
+        Set<TextRecord> rec = null;
+        try {
+            rec = this.discovery.listTextRecords(name, "example", true);
+            Assert.fail("Expected a Lookup Exception");
+        } catch (LookupException ex) {
+            Assert.assertTrue(true);
         } catch (ConfigurationException ex) {
             Assert.fail("Expected correct configuration, not " + ex.toString());
         }
