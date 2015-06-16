@@ -38,6 +38,7 @@ import org.xbill.DNS.Type;
 public final class DnsUtil {
 
     private static final String INSECURE = "insecure";
+    private static final String CHAIN_OF_TRUST = "chain of trust";
     private static final String NO_DATA = "nodata";
     private static final String NO_SIGNATURE = "missing signature";
 
@@ -114,7 +115,8 @@ public final class DnsUtil {
             }
             StatusCode outcome = StatusCode.SUCCESSFUL_OPERATION;
             if(dnsResponse.getRcode() == Rcode.SERVFAIL) {
-                if(reason.toString().toLowerCase().contains(INSECURE))
+                if(reason.toString().toLowerCase().contains(INSECURE) || 
+                    reason.toString().toLowerCase().contains(CHAIN_OF_TRUST))
                     outcome = StatusCode.RESOURCE_INSECURE_ERROR;
                 else if(reason.toString().toLowerCase().contains(NO_SIGNATURE))
                     outcome = StatusCode.RESOLUTION_NAME_ERROR;

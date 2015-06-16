@@ -92,9 +92,10 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
         try {
             result = new TreeSet<>();
             result.addAll(this.helper.serviceTypes(browsingDomain, secValidation));
-            if (result.isEmpty() && !this.errorsTrace.get().isEmpty()) {
-                throw ExceptionsUtil.build(StatusCode.NETWORK_ERROR,
-                        String.format("Unable to resolve [%s]", browsingDomain.fqdn()), errorsTrace.get());
+            if (result.isEmpty() && !ExceptionsUtil.onlyNameResolutionTrace(this.errorsTrace.get())) {
+                throw ExceptionsUtil.build(StatusCode.RESOURCE_LOOKUP_ERROR,
+                        String.format("Unable to resolve [%s]", browsingDomain),
+                        errorsTrace.get());
             }
         } catch (LookupException | ConfigurationException exception) {
             throw exception;
@@ -115,8 +116,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
         try {
             result = new TreeSet<>();
             result.addAll(this.helper.serviceInstances(browsingDomain, type, secValidation));
-            if (result.isEmpty() && !this.errorsTrace.get().isEmpty()) {
-                throw ExceptionsUtil.build(StatusCode.NETWORK_ERROR,
+            if (result.isEmpty() && !ExceptionsUtil.onlyNameResolutionTrace(this.errorsTrace.get())) {
+                throw ExceptionsUtil.build(StatusCode.RESOURCE_LOOKUP_ERROR,
                         String.format("Unable to resolve [%s]", browsingDomain.fqdnWithPrefix(type)),
                         errorsTrace.get());
             }
@@ -139,8 +140,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
         try {
             result = new TreeSet<>();
             result.addAll(this.helper.serviceRecords(browsingDomain, type, secValidation));
-            if (result.isEmpty() && !this.errorsTrace.get().isEmpty()) {
-                throw ExceptionsUtil.build(StatusCode.NETWORK_ERROR,
+            if (result.isEmpty() && !ExceptionsUtil.onlyNameResolutionTrace(this.errorsTrace.get())) {
+                throw ExceptionsUtil.build(StatusCode.RESOURCE_LOOKUP_ERROR,
                         String.format("Unable to resolve [%s]", browsingDomain.fqdnWithPrefix(type)),
                         errorsTrace.get());
             }
@@ -186,9 +187,9 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
         try {
             result = new TreeSet<>();
             result.addAll(this.helper.tlsaRecords(browsingDomain, tlsaPrefix, secValidation));
-            if (result.isEmpty() && !this.errorsTrace.get().isEmpty()) {
-                throw ExceptionsUtil.build(StatusCode.NETWORK_ERROR,
-                        String.format("Unable to resolve [%s]", browsingDomain.domain()),
+            if (result.isEmpty() && !ExceptionsUtil.onlyNameResolutionTrace(this.errorsTrace.get())) {
+                throw ExceptionsUtil.build(StatusCode.RESOURCE_LOOKUP_ERROR,
+                        String.format("Unable to resolve [%s]", browsingDomain),
                         errorsTrace.get());
             }
         } catch (LookupException exception) {
@@ -316,7 +317,9 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
                     statusChange(StatusChangeEvent.build(browsingDomain.fqdn(), Type.string(Type.PTR),
                             StatusChangeEvent.castedList(set.getLabels())));
                 } catch (LookupException le) {
-                    if (le.dnsError().equals(StatusCode.SERVER_ERROR)
+                    if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
+                        throw  le;
+                    } else if (le.dnsError().equals(StatusCode.SERVER_ERROR)
                             || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
@@ -361,9 +364,9 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
                     statusChange(StatusChangeEvent.build(browsingDomain.fqdnWithPrefix(label),
                             Type.string(Type.TXT), StatusChangeEvent.castedList(set.getTexts())));
                 } catch (LookupException le) {
-                    if(le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
+                    if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
                         throw  le;
-                    }else if (le.dnsError().equals(StatusCode.SERVER_ERROR)
+                    } else if (le.dnsError().equals(StatusCode.SERVER_ERROR)
                             || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
@@ -425,7 +428,9 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
                             Type.string(ctx.getRrType()),
                             StatusChangeEvent.castedList(records)));
                 } catch (LookupException le) {
-                    if (le.dnsError().equals(StatusCode.SERVER_ERROR)
+                    if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
+                        throw  le;
+                    } else if (le.dnsError().equals(StatusCode.SERVER_ERROR)
                             || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
@@ -483,7 +488,9 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
                             StatusChangeEvent.castedList(names)));
                     instances.addAll(retrieveDnsInstances(ctx, names));
                 } catch (LookupException le) {
-                    if (le.dnsError().equals(StatusCode.SERVER_ERROR)
+                    if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
+                        throw  le;
+                    } else if (le.dnsError().equals(StatusCode.SERVER_ERROR)
                             || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
@@ -498,8 +505,18 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
             return instances;
         }
 
+        /**
+         * 
+         * @param browsingDomain
+         * @param tlsaPrefix
+         * @param secValidation
+         * @return
+         * @throws LookupException
+         * @throws ConfigurationException 
+         */
         public Set<TLSADiscoveryRecord> tlsaRecords(Fqdn browsingDomain, TLSAPrefix tlsaPrefix, boolean secValidation)
-                throws LookupException, ConfigurationException {
+                throws LookupException, ConfigurationException 
+        {
             Map<String, Resolver> resolvers = retrieveResolvers(secValidation);
             Set<TLSADiscoveryRecord> tlsaDiscoveryRecords = new TreeSet<>();
             DnsServicesDiscovery.this.errorsTrace.get().clear();
@@ -521,7 +538,9 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
                         }
                     }
                 } catch (LookupException le) {
-                    if (le.dnsError().equals(StatusCode.SERVER_ERROR)
+                    if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
+                        throw  le;
+                    } else if (le.dnsError().equals(StatusCode.SERVER_ERROR)
                             || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
