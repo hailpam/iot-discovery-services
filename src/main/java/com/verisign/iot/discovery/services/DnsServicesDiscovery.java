@@ -585,7 +585,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery {
                                 "Checking-Lookup-Status"), outcome);
             }
 
-            return records;
+            return (records == null?new Record[0]:records);
         }
 
         /**
