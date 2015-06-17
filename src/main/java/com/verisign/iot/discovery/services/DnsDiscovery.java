@@ -92,6 +92,8 @@ public interface DnsDiscovery extends DnsSecChecker
 	 * 
      * @throws LookupException        In case of any unrecoverable error during the lookup process.
 	 * @throws ConfigurationException In case of wrong/faulty static and/or runtime configuration.
+     * 
+     * @see <a href="https://tools.ietf.org/html/rfc6698">DNS-Based Authentication of Named Entities (DANE)</a>
 	 */
 	Set<TLSADiscoveryRecord> listTLSARecords ( Fqdn browsingDomain, TLSAPrefix tlsaPrefix, 
                                                boolean secValidation ) 

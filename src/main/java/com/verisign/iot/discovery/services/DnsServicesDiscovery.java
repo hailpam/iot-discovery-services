@@ -549,7 +549,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
             Set<TLSADiscoveryRecord> tlsaDiscoveryRecords = new TreeSet<>();
             DnsServicesDiscovery.this.errorsTrace.get().clear();
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
-            String tlsaFqdn = tlsaPrefix.toString() + Constants.DNS_LABEL_DELIMITER + browsingDomain.domain();
+            String tlsaFqdn = tlsaPrefix.toString() + Constants.DNS_LABEL_DELIMITER + browsingDomain.fqdn();
             Fqdn browsingDomainWithTLSAPrefix = new Fqdn(tlsaFqdn);
             LookupContext ctx = context(browsingDomainWithTLSAPrefix, "", "", "", Type.TLSA, secValidation);
             String server;
