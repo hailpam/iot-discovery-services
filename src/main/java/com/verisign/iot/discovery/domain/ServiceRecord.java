@@ -13,7 +13,8 @@ import org.xbill.DNS.SRVRecord;
  * @version 1.0
  * @since Mar 30, 2015
  */
-public final class ServiceRecord extends DiscoveryRecord {
+public final class ServiceRecord extends DiscoveryRecord
+{
 
     /**
      * Service host.
@@ -38,7 +39,8 @@ public final class ServiceRecord extends DiscoveryRecord {
      * @param srvRecord A {@link SRVRecord} instance to be worked out
      * @return An instance of <code>ServiceRecord</code>
      */
-    public static ServiceRecord build(SRVRecord srvRecord) {
+    public static ServiceRecord build(SRVRecord srvRecord)
+    {
 
         return new ServiceRecord(srvRecord.getTarget().toString(), srvRecord.getPort(), srvRecord.getPriority(),
                 srvRecord.getWeight(), srvRecord.getTTL());
@@ -49,7 +51,8 @@ public final class ServiceRecord extends DiscoveryRecord {
      *
      * @return the host
      */
-    public String getHost() {
+    public String getHost()
+    {
         return this.host;
     }
 
@@ -58,7 +61,8 @@ public final class ServiceRecord extends DiscoveryRecord {
      *
      * @return the port
      */
-    public int getPort() {
+    public int getPort()
+    {
         return this.port;
     }
 
@@ -67,7 +71,8 @@ public final class ServiceRecord extends DiscoveryRecord {
      *
      * @return the priority
      */
-    public int getPriority() {
+    public int getPriority()
+    {
         return this.priority;
     }
 
@@ -76,7 +81,8 @@ public final class ServiceRecord extends DiscoveryRecord {
      *
      * @return the weight
      */
-    public int getWeight() {
+    public int getWeight()
+    {
         return this.weight;
     }
 
@@ -86,17 +92,20 @@ public final class ServiceRecord extends DiscoveryRecord {
      * @return the ttl
      */
     @Override
-    public long getTtl() {
+    public long getTtl()
+    {
         return this.ttl;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return Objects.hash(this.host, this.port, this.priority, this.weight, this.ttl);
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj)
+    {
         if (obj == null) {
             return false;
         }
@@ -112,13 +121,15 @@ public final class ServiceRecord extends DiscoveryRecord {
     }
 
     @Override
-    public String toString() {
-        return String.format("%s:%d %d",
-                (host.endsWith(".") ? host.substring(0, host.length() - 1) : host), port, ttl);
+    public String toString()
+    {
+        return String.format("%d %s:%d", ttl,
+                (host.endsWith(".") ? host.substring(0, host.length() - 1) : host), port);
     }
 
     @Override
-    public int compareTo(DiscoveryRecord other) {
+    public int compareTo(DiscoveryRecord other)
+    {
         if (other instanceof ServiceRecord) {
             ServiceRecord real = (ServiceRecord) other;
             if (this.priority < real.priority) {
@@ -143,7 +154,8 @@ public final class ServiceRecord extends DiscoveryRecord {
         return 0;
     }
 
-    private ServiceRecord(String host, int port, int priority, int weight, long ttl) {
+    private ServiceRecord(String host, int port, int priority, int weight, long ttl)
+    {
         super(String.format("%s %d %d %d %d", host, port, priority, weight, ttl), ttl);
         this.host = host;
         this.port = port;
@@ -152,7 +164,8 @@ public final class ServiceRecord extends DiscoveryRecord {
     }
 
     @Override
-    public String getServiceType() {
+    public String getServiceType()
+    {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

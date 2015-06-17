@@ -1,12 +1,10 @@
 
 package com.verisign.iot.discovery.commons;
 
+import com.verisign.iot.discovery.domain.Fqdn;
 import java.io.Serializable;
-
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Resolver;
-
-import com.verisign.iot.discovery.domain.Fqdn;
 
 /**
  * Context Object for lookup operations.
@@ -15,7 +13,8 @@ import com.verisign.iot.discovery.domain.Fqdn;
  * @version 1.0
  * @since 2015/05/02
  */
-public final class LookupContext implements Serializable {
+public final class LookupContext implements Serializable
+{
 
 	private static final long serialVersionUID = 448226124178324159L;
 	/** Resolver to be used during the lookup. */
@@ -38,92 +37,94 @@ public final class LookupContext implements Serializable {
 	private int rrType;
 
 
-	public Resolver getResolver () {
+	public Resolver getResolver ()
+    {
 		return this.resolver;
 	}
 
 
-	public void setResolver ( Resolver resolver ) {
+	public void setResolver ( Resolver resolver )
+    {
 		this.resolver = resolver;
 	}
 
-
-	public Lookup getLookup () {
+	public Lookup getLookup ()
+    {
 		return this.lookup;
 	}
 
-
-	public void setLookup ( Lookup lookup ) {
+	public void setLookup ( Lookup lookup )
+    {
 		this.lookup = lookup;
 	}
 
-
-	public Fqdn getDomainName () {
+	public Fqdn getDomainName ()
+    {
 		return this.domainName;
 	}
 
-
-	public void setDomainName ( Fqdn domainName ) {
+	public void setDomainName ( Fqdn domainName )
+    {
 		this.domainName = domainName;
 	}
 
-
-	public String getLabel () {
+	public String getLabel ()
+    {
 		return this.label;
 	}
 
-
-	public void setLabel ( String label ) {
+	public void setLabel ( String label )
+    {
 		this.label = label;
 	}
 
-
-	public String getType () {
+	public String getType ()
+    {
 		return this.type;
 	}
 
-
-	public void setType ( String type ) {
+	public void setType ( String type )
+    {
 		this.type = type;
 	}
 
-
-	public boolean isSecure () {
+	public boolean isSecure ()
+    {
 		return this.secure;
 	}
 
-
-	public void setSecure ( boolean secure ) {
+	public void setSecure ( boolean secure )
+    {
 		this.secure = secure;
 	}
 
-
-	public String getPrefix () {
+	public String getPrefix ()
+    {
 		return this.prefix;
 	}
 
-
-	public void setPrefix ( String prefix ) {
+	public void setPrefix ( String prefix )
+    {
 		this.prefix = prefix;
 	}
 
-
-	public int getRrType () {
+	public int getRrType ()
+    {
 		return this.rrType;
 	}
 
-
-	public void setRrType ( int rrType ) {
+	public void setRrType ( int rrType )
+    {
 		this.rrType = rrType;
 	}
 
-
-	public String getDnsLabel () {
+	public String getDnsLabel ()
+    {
 		return this.dnsLabel;
 	}
 
-
-	public void setDnsLabel ( String dnsLabel ) {
+	public void setDnsLabel ( String dnsLabel )
+    {
 		this.dnsLabel = dnsLabel;
 	}
 

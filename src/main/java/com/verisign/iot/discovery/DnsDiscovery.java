@@ -1,9 +1,9 @@
-package com.verisign.iot.discovery.services;
+package com.verisign.iot.discovery;
 
 import com.verisign.iot.discovery.domain.Fqdn;
 import com.verisign.iot.discovery.domain.ServiceInstance;
 import com.verisign.iot.discovery.domain.ServiceRecord;
-import com.verisign.iot.discovery.domain.TLSADiscoveryRecord;
+import com.verisign.iot.discovery.domain.CertRecord;
 import com.verisign.iot.discovery.domain.TLSAPrefix;
 import com.verisign.iot.discovery.domain.TextRecord;
 import com.verisign.iot.discovery.exceptions.ConfigurationException;
@@ -88,14 +88,14 @@ public interface DnsDiscovery extends DnsSecChecker
 	 * @param tlsaPrefix          An object which provides the TLSA record prefix based on port and protocol
 	 * @param secValidation  <code>true</code> iff DNSSEC trust chain has to be validated
      * 
-     * @return A set of <code>TLSADiscoveryRecord</code> objects
+     * @return A set of <code>CertRecord</code> objects
 	 * 
      * @throws LookupException        In case of any unrecoverable error during the lookup process.
 	 * @throws ConfigurationException In case of wrong/faulty static and/or runtime configuration.
      * 
      * @see <a href="https://tools.ietf.org/html/rfc6698">DNS-Based Authentication of Named Entities (DANE)</a>
 	 */
-	Set<TLSADiscoveryRecord> listTLSARecords ( Fqdn browsingDomain, TLSAPrefix tlsaPrefix, 
+	Set<CertRecord> listTLSARecords ( Fqdn browsingDomain, TLSAPrefix tlsaPrefix, 
                                                boolean secValidation ) 
                                 throws LookupException, ConfigurationException;
 }

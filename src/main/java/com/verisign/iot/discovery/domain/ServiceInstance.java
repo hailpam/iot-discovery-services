@@ -12,7 +12,8 @@ import java.util.Objects;
  * @version 1.0
  * @since Mar 27, 2015
  */
-public final class ServiceInstance extends DiscoveryRecord {
+public final class ServiceInstance extends DiscoveryRecord
+{
 
 	/** A <code>String</code> defining the Service Type of this Service Instance. */
 	private final String serviceType;
@@ -32,7 +33,8 @@ public final class ServiceInstance extends DiscoveryRecord {
 	 * @param textRecord
 	 *        The <code>TextRecord</code> of this Service Instance
 	 */
-	public ServiceInstance ( String serviceType, ServiceRecord serviceRecord, TextRecord textRecord ) {
+	public ServiceInstance ( String serviceType, ServiceRecord serviceRecord, TextRecord textRecord )
+    {
 		super( String.format( "%s %s %d %d %d %d %s", serviceType, serviceRecord.getHost(), serviceRecord.getPort(),
 				serviceRecord.getPriority(), serviceRecord.getWeight(), Constants.RECORD_DEFAULT_TTL, textRecord.getRData() ),
 				Constants.RECORD_DEFAULT_TTL );
@@ -47,7 +49,8 @@ public final class ServiceInstance extends DiscoveryRecord {
 	 *
 	 * @return the serviceRecord
 	 */
-	public ServiceRecord getServiceRecord () {
+	public ServiceRecord getServiceRecord ()
+    {
 		return this.serviceRecord;
 	}
 
@@ -57,19 +60,22 @@ public final class ServiceInstance extends DiscoveryRecord {
 	 *
 	 * @return the textRecord
 	 */
-	public TextRecord getTextRecord () {
+	public TextRecord getTextRecord ()
+    {
 		return this.textRecord;
 	}
 
 
 	@Override
-	public int hashCode () {
+	public int hashCode ()
+    {
 		return Objects.hash( this.serviceType, this.serviceRecord, this.textRecord );
 	}
 
 
 	@Override
-	public boolean equals ( Object obj ) {
+	public boolean equals ( Object obj )
+    {
 		if ( obj == null ) {
 			return false;
 		}
@@ -87,14 +93,14 @@ public final class ServiceInstance extends DiscoveryRecord {
 
 
 	@Override
-	public int compareTo ( DiscoveryRecord other ) {
+	public int compareTo ( DiscoveryRecord other )
+    {
 		if ( other instanceof ServiceInstance ) {
 			ServiceInstance real = (ServiceInstance) other;
 			if ( this.serviceRecord != null && real.serviceRecord != null ) {
 				return this.serviceRecord.compareTo( real.serviceRecord );
 			}
-		}
-		else {
+		} else {
 			return super.compareTo( other );
 		}
 
@@ -103,11 +109,13 @@ public final class ServiceInstance extends DiscoveryRecord {
 
 
 	@Override
-	public String toString () {
+	public String toString ()
+    {
 		StringBuilder sb = new StringBuilder();
-		sb.append( this.serviceType ).append( " " ).append( this.serviceRecord );
+		sb.append( this.serviceRecord );
 		if ( this.textRecord != null ) {
-			sb.append( " " ).append( this.textRecord.getRData() );
+			sb.append( " " )
+              .append( this.textRecord.getRData() );
 		}
 
 		return sb.toString();
@@ -115,24 +123,28 @@ public final class ServiceInstance extends DiscoveryRecord {
 
 
 	@Override
-	public String getServiceType () {
+	public String getServiceType ()
+    {
 		return this.serviceType;
 	}
 
 
 	@Override
-	public String getServiceZone ( String dnsLabel ) {
+	public String getServiceZone ( String dnsLabel )
+    {
 		throw new UnsupportedOperationException( "Not supported yet." );
 	}
 
 
 	@Override
-	public String getServiceName ( String dnsLabel ) {
+	public String getServiceName ( String dnsLabel )
+    {
 		throw new UnsupportedOperationException( "Not supported yet." );
 	}
 
     @Override
-    public String toDisplay() {
+    public String toDisplay()
+    {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

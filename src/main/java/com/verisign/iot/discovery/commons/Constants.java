@@ -7,7 +7,8 @@ package com.verisign.iot.discovery.commons;
  * @version 1.0
  * @since 2015/04/28
  */
-public final class Constants {
+public final class Constants
+{
 
 	/**
 	 * Default DNS domain.
@@ -86,7 +87,8 @@ public final class Constants {
 	public static final long RECORD_DEFAULT_TTL = 3600L;
 
 
-	private Constants () {
+	private Constants ()
+    {
 		throw new AssertionError( String.format( "No instances of %s for you!", this.getClass().getName() ) );
 	}
 

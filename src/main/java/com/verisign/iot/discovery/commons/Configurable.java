@@ -16,7 +16,8 @@ import java.util.Observer;
  * @version 1.0
  * @since 2015/05/02
  */
-public abstract class Configurable {
+public abstract class Configurable
+{
 
     /**
      * DNS Server to be addressed.
@@ -52,7 +53,8 @@ public abstract class Configurable {
      */
     protected Notifier notifier;
 
-    protected Configurable() {
+    protected Configurable()
+    {
         this.introspected = false;
         this.checked = false;
         this.notifier = this.new Notifier();
@@ -64,7 +66,8 @@ public abstract class Configurable {
      * @param host Server's address
      * @return This instance to further configure
      */
-    public final Configurable dnsServer(InetAddress host) {
+    public final Configurable dnsServer(InetAddress host)
+    {
         this.dnsServer = host;
         this.checked = false;
         return this;
@@ -76,7 +79,8 @@ public abstract class Configurable {
      * @param domain A <code>String</code> containing the domain name
      * @return This instance to further configure
      */
-    public final Configurable dnsSecDomain(String domain) {
+    public final Configurable dnsSecDomain(String domain)
+    {
         this.dnsSecDomain = domain;
         this.checked = false;
         return this;
@@ -88,7 +92,8 @@ public abstract class Configurable {
      * @param anchor A <code>String</code> containing the public key
      * @return This instance to further configure
      */
-    public final Configurable trustAnchorDefault(String anchor) {
+    public final Configurable trustAnchorDefault(String anchor)
+    {
         this.trustAnchorDefault = anchor;
         this.checked = false;
         return this;
@@ -100,7 +105,8 @@ public abstract class Configurable {
      * @param anchorContainer A <code>Filer</code> storing the public key
      * @return This instance to further configure
      */
-    public final Configurable trustAnchorFile(File anchorContainer) {
+    public final Configurable trustAnchorFile(File anchorContainer)
+    {
         this.trustAnchorFile = anchorContainer;
         this.checked = false;
         return this;
@@ -113,7 +119,8 @@ public abstract class Configurable {
      * events.
      * @return This instance to further configure
      */
-    public final Configurable introspected(boolean isIt) {
+    public final Configurable introspected(boolean isIt)
+    {
         this.introspected = isIt;
         this.checked = false;
         return this;
@@ -125,7 +132,8 @@ public abstract class Configurable {
      * @param handler A client status change handler
      * @return This instance to further configure
      */
-    public final Configurable observer(Observer handler) {
+    public final Configurable observer(Observer handler)
+    {
         if (handler != null) {
             this.notifier.addObserver(handler);
             this.checked = false;
@@ -139,7 +147,8 @@ public abstract class Configurable {
      * @param reloadConfig  <code>true</code> iff the configuration has to be reloaded
      * @throws ConfigurationException In case this instance has not been configured properly
      */
-    public synchronized void checkConfiguration(boolean reloadConfig) throws ConfigurationException {
+    public synchronized void checkConfiguration(boolean reloadConfig) throws ConfigurationException
+    {
 
         if (!reloadConfig && this.checked) {
             return;
@@ -173,7 +182,8 @@ public abstract class Configurable {
      *
      * @throws ConfigurationException In case configurations have been done, but not checked.
      */
-    protected void validatedConf() throws ConfigurationException {
+    protected void validatedConf() throws ConfigurationException
+    {
         checkConfiguration(false);
     }
 
@@ -182,7 +192,8 @@ public abstract class Configurable {
      *
      * @param what A <code>String</code> containing the status change event
      */
-    protected void statusChange(String what) {
+    protected void statusChange(String what)
+    {
         if (what == null || what.isEmpty()) {
             this.notifier.notifyObservers();
         } else {
@@ -195,7 +206,8 @@ public abstract class Configurable {
      *
      * @param what An <code>Object</code> containing the status change event
      */
-    protected void statusChange(Object what) {
+    protected void statusChange(Object what)
+    {
         if (what != null) {
             this.notifier.notifyObservers(what);
         }
@@ -209,7 +221,8 @@ public abstract class Configurable {
      * @version 1.0
      * @since 2015/05/02
      */
-    private class Notifier extends Observable {
+    private class Notifier extends Observable
+    {
 
         @Override
         public final void notifyObservers() {

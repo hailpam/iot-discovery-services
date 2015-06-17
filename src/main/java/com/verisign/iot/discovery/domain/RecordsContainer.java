@@ -12,7 +12,8 @@ import java.util.TreeSet;
  * @since 1.0
  * @version May 2, 2015
  */
-public class RecordsContainer {
+public class RecordsContainer
+{
 
 	/** A set of <code>String</code> containing generic labels. */
 	private final Set<String> labels;
@@ -22,24 +23,28 @@ public class RecordsContainer {
 	private final Set<ServiceRecord> records;
 
 
-	public RecordsContainer () {
+	public RecordsContainer ()
+    {
 		this.labels = new LinkedHashSet<>();
 		this.texts = new TreeSet<>();
 		this.records = new TreeSet<>();
 	}
 
 
-	public Set<String> getLabels () {
+	public Set<String> getLabels ()
+    {
 		return this.labels;
 	}
 
 
-	public Set<TextRecord> getTexts () {
+	public Set<TextRecord> getTexts ()
+    {
 		return this.texts;
 	}
 
 
-	public Set<ServiceRecord> getRecords () {
+	public Set<ServiceRecord> getRecords ()
+    {
 		return this.records;
 	}
 

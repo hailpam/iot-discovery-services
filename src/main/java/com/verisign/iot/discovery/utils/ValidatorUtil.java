@@ -9,7 +9,8 @@ import com.verisign.iot.discovery.domain.Fqdn;
  * @version 1.0
  * @since 2015/05/02
  */
-public final class ValidatorUtil {
+public final class ValidatorUtil
+{
 
 	public static final String FQDN_PATTERN = "^([(\\\\ )|(\\\\0-9)0-9a-zA-Z_-]+\\.){1,}$";
 	public static final String DNS_SD_FQDN_PATTERN = "\\";
@@ -22,7 +23,8 @@ public final class ValidatorUtil {
 	 * @param what A <code>boolean</code> expression to be checked
 	 * @throws IllegalArgumentException In case the argument cannot be validated
 	 */
-	public static void check ( boolean what ) throws IllegalArgumentException {
+	public static void check ( boolean what ) throws IllegalArgumentException
+    {
 		if ( !what ) {
 			throw new IllegalArgumentException( "failed to assert" );
 		}
@@ -35,7 +37,8 @@ public final class ValidatorUtil {
 	 * @param label A <code>String</code> containing a Label
 	 * @throws IllegalArgumentException In case the argument cannot be validated
 	 */
-	public static void isValidLabel ( String label ) throws IllegalArgumentException {
+	public static void isValidLabel ( String label ) throws IllegalArgumentException
+    {
 		if ( label == null || label.isEmpty() ) {
 			throw new IllegalArgumentException( "null/blank label" );
 		}
@@ -50,7 +53,8 @@ public final class ValidatorUtil {
 	 * @see <a href="http://en.wikipedia.org/wiki/Domain_name">Domain Name</a>
 	 * @see <a href="http://en.wikipedia.org/wiki/CNAME_record">CNAME</a>
 	 */
-	public static void isValidDomainName ( Fqdn name ) throws IllegalArgumentException {
+	public static void isValidDomainName ( Fqdn name ) throws IllegalArgumentException
+    {
 		if ( name == null ) {
 			throw new IllegalArgumentException( "null/blank Fully Qualified Domain Name" );
 		}
@@ -71,7 +75,8 @@ public final class ValidatorUtil {
 	 * @see <a href="http://en.wikipedia.org/wiki/Domain_name">Domain Name</a>
 	 * @see <a href="http://en.wikipedia.org/wiki/CNAME_record">CNAME</a>
 	 */
-	public static void isValidDomainName ( String name ) throws IllegalArgumentException {
+	public static void isValidDomainName ( String name ) throws IllegalArgumentException
+    {
 		if ( name == null || name.isEmpty() ) {
 			throw new IllegalArgumentException( "null/blank name" );
 		}
@@ -87,11 +92,13 @@ public final class ValidatorUtil {
 	 * @param name name A <code>String</code> containing a Domain Name
 	 * @return <code>true</code> iff the FQDN is DNS-SD specific
 	 */
-	public static boolean isDnsSdDomainName ( String name ) {
+	public static boolean isDnsSdDomainName ( String name )
+    {
 		return name.contains( DNS_SD_FQDN_PATTERN );
 	}
-    
-    public static boolean isValidPort(String portString){
+
+    public static boolean isValidPort(String portString)
+    {
 		try{
 			int portInt = Integer.parseInt( portString );
 			if ( 0 <= portInt && portInt <= 65535 ){
@@ -102,7 +109,8 @@ public final class ValidatorUtil {
 		return false;
 	}
 
-	private ValidatorUtil () {
+	private ValidatorUtil ()
+    {
 		throw new AssertionError( String.format( "No instances of %s for you!", this.getClass().getName() ) );
 	}
 

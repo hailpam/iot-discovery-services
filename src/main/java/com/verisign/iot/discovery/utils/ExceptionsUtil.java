@@ -14,7 +14,8 @@ import java.util.Map;
  * @version 1.0
  * @since 2015/05/02
  */
-public final class ExceptionsUtil {
+public final class ExceptionsUtil
+{
 
     /** Date format pattern. */
     private static final String DATET_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -31,7 +32,8 @@ public final class ExceptionsUtil {
 	 * @return An instance of <code>LookupException</code>
 	 */
 	public static LookupException build(StatusCode error, String message,
-			Map<String, StatusCode> trace) {
+                                        Map<String, StatusCode> trace)
+    {
 		LookupException exception = new LookupException(error, message);
 		exception.setErrorsTrace(new HashMap<>(trace));
 
@@ -47,7 +49,8 @@ public final class ExceptionsUtil {
 	 * error is raised
 	 * @return A <code>String</code> containing the so built Key
 	 */
-	public static String traceKey(Object who, String forWhich, String where) {
+	public static String traceKey(Object who, String forWhich, String where)
+    {
 		StringBuilder builder = new StringBuilder();
 		builder.append(FORMATTER.format(new Date(System.currentTimeMillis())))
 				.append(":<")
@@ -60,8 +63,9 @@ public final class ExceptionsUtil {
 
 		return builder.toString();
 	}
+
     /**
-     * 
+     *
      * @param trace
      * @return
      */
@@ -74,7 +78,8 @@ public final class ExceptionsUtil {
         return (cntr == trace.size());
     }
 
-	private ExceptionsUtil() {
+	private ExceptionsUtil()
+    {
 		throw new AssertionError(String.format("No instances of %s for you!", this.getClass().getName()));
 	}
 

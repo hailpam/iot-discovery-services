@@ -1,5 +1,5 @@
 
-package com.verisign.iot.discovery.services;
+package com.verisign.iot.discovery;
 
 import com.verisign.iot.discovery.domain.Fqdn;
 import com.verisign.iot.discovery.exceptions.ConfigurationException;

@@ -35,7 +35,8 @@ import org.xbill.DNS.Type;
  * @version 1.0
  * @since 2015/05/02
  */
-public final class DnsUtil {
+public final class DnsUtil
+{
 
     private static final String INSECURE = "insecure";
     private static final String CHAIN_OF_TRUST = "chain of trust";
@@ -54,8 +55,8 @@ public final class DnsUtil {
      * @throws ConfigurationException Exceptional circumstances in which <code>Resolver</code>
      * cannot be created.
      */
-    public static Resolver getResolver(boolean dnsSec, String trustAnchor, String server) 
-                            throws ConfigurationException 
+    public static Resolver getResolver(boolean dnsSec, String trustAnchor, String server)
+                            throws ConfigurationException
     {
         Resolver resolver = instantiateResolver(dnsSec, trustAnchor, server);
         if (resolver == null) {
@@ -75,8 +76,8 @@ public final class DnsUtil {
      * @throws ConfigurationException Exceptional circumstances in which no default
      * <code>Resolver</code> can be created.
      */
-    public static Map<String, Resolver> getResolvers(boolean dnsSec, String trustAnchor) 
-                                            throws ConfigurationException 
+    public static Map<String, Resolver> getResolvers(boolean dnsSec, String trustAnchor)
+                                            throws ConfigurationException
     {
         String[] servers = ResolverConfig.getCurrentConfig().servers();
         Map<String, Resolver> resolvers = new LinkedHashMap<>(servers.length);
@@ -103,7 +104,7 @@ public final class DnsUtil {
      * @throws LookupException Containing the specific <code>StatusCode</code> defining the error
      * that has been raised.
      */
-    public static boolean checkDnsSec(Fqdn name, Resolver resolver) throws LookupException 
+    public static boolean checkDnsSec(Fqdn name, Resolver resolver) throws LookupException
     {
         try {
             ValidatingResolver validating = (ValidatingResolver) resolver;
@@ -119,7 +120,7 @@ public final class DnsUtil {
             }
             StatusCode outcome = StatusCode.SUCCESSFUL_OPERATION;
             if(dnsResponse.getRcode() == Rcode.SERVFAIL) {
-                if(reason.toString().toLowerCase().contains(INSECURE) || 
+                if(reason.toString().toLowerCase().contains(INSECURE) ||
                     reason.toString().toLowerCase().contains(CHAIN_OF_TRUST))
                     outcome = StatusCode.RESOURCE_INSECURE_ERROR;
                 else if(reason.toString().toLowerCase().contains(NO_SIGNATURE))
@@ -154,7 +155,7 @@ public final class DnsUtil {
      * that has been raised.
      */
     public static StatusCode checkLookupStatus(Lookup lookup)
-                                throws LookupException 
+                                throws LookupException
     {
         StatusCode outcome = null;
         if (lookup.getResult() == Lookup.TRY_AGAIN) {
@@ -186,7 +187,7 @@ public final class DnsUtil {
      * that has been raised.
      */
     public static Lookup instantiateLookup(String domainName, Resolver resolver, int rrType, Cache cache)
-                            throws LookupException 
+                            throws LookupException
     {
         Lookup lookup = null;
         try {
@@ -209,7 +210,7 @@ public final class DnsUtil {
      * @param server Server to use as DNS resolver
      * @return <code>null</code> in case the <code>Resolver</code> cannot be instantiated
      */
-    private static Resolver instantiateResolver(boolean dnsSec, String trustAnchor, String server) 
+    private static Resolver instantiateResolver(boolean dnsSec, String trustAnchor, String server)
     {
         try {
             Resolver resolver = new SimpleResolver(server);
@@ -226,7 +227,7 @@ public final class DnsUtil {
         }
     }
 
-    private DnsUtil() 
+    private DnsUtil()
     {
         throw new AssertionError(String.format("No instances of %s for you!", this.getClass().getName()));
     }
