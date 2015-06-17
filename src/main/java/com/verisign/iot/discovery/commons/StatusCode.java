@@ -10,7 +10,8 @@ package com.verisign.iot.discovery.commons;
  * @version 1.0
  * @since 2015/05/02
  */
-public enum StatusCode {
+public enum StatusCode
+{
 
     SUCCESSFUL_OPERATION((short) 10000, "Successful DNS Operation"),
     CONFIGURATION_ERROR((short) 10001, "Inconsistent secured DNS settings"),
@@ -19,14 +20,15 @@ public enum StatusCode {
     RESOURCE_INSECURE_ERROR((short) 9505, "Unsecured DNS packet"),
     RESOURCE_UNEXPECTED((short) 9506, "Unexpected Resource Record Type"),
     SIGNATURE_ERROR((short) 9016, "DNS failed to verify"),
-    SERVER_ERROR((short) 9002, "DNS server failure"),
+    SERVER_ERROR((short) 9002, "DNS server error: refuses to serve the query"),
     RESOLUTION_NAME_ERROR((short) 9001, "DNS name does not exist"),
     RESOLUTION_RR_TYPE_ERROR((short) 9007, "RR Type does not exist");
 
     private final Short code;
     private final String label;
 
-    private StatusCode(final Short code, final String label) {
+    private StatusCode(final Short code, final String label)
+    {
         this.code = code;
         this.label = label;
     }
@@ -36,7 +38,8 @@ public enum StatusCode {
      *
      * @return A <code>short</code> defining the Error Code
      */
-    public Short statusCode() {
+    public Short statusCode()
+    {
         return this.code;
     }
 
@@ -45,12 +48,14 @@ public enum StatusCode {
      *
      * @return A <code>String</code> containing a brief explanation of the Error Code
      */
-    public String statusLabel() {
+    public String statusLabel()
+    {
         return this.label;
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return String.format("%d: %s: ", this.code, this.label);
     }
 

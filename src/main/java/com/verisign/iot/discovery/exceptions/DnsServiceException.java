@@ -12,7 +12,8 @@ import java.util.Map;
  * @version 1.0
  * @since 2015/05/02
  */
-public class DnsServiceException extends Exception {
+public class DnsServiceException extends Exception
+{
 
 	protected static final long serialVersionUID = 1997753363232807009L;
 
@@ -32,12 +33,28 @@ public class DnsServiceException extends Exception {
 	 * @param error Caught error
 	 * @param message A decorating message
 	 */
-	public DnsServiceException(StatusCode error, String message) {
-		super(error.toString() + ": " + message);
+	public DnsServiceException(StatusCode error, String message)
+    {
+		super(error.toString() + " " + message);
 		this.raisingError = error;
 	}
 
-	public DnsServiceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    /**
+	 * Three arguments constructor: no message decoration for the caught error
+     * if <code>simple</code> is set to <code>true</code>.
+	 *
+	 * @param error Caught error
+	 * @param message A decorating message
+     * @param simple  <code>true</code> if no message decoration is needed
+	 */
+    public DnsServiceException(StatusCode error, String message, boolean simple)
+    {
+		super(message);
+		this.raisingError = error;
+	}
+
+	public DnsServiceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
+    {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
@@ -46,7 +63,8 @@ public class DnsServiceException extends Exception {
 	 *
 	 * @return The error code and its brief
 	 */
-	public final StatusCode dnsError() {
+	public final StatusCode dnsError()
+    {
 		return this.raisingError;
 	}
 
@@ -55,7 +73,8 @@ public class DnsServiceException extends Exception {
 	 *
 	 * @param errors A <code>Map</code> containing caught recoverable errors
 	 */
-	public final void setErrorsTrace(Map<String, StatusCode> errors) {
+	public final void setErrorsTrace(Map<String, StatusCode> errors)
+    {
 		this.errorsTrace = errors;
 	}
 
@@ -64,7 +83,8 @@ public class DnsServiceException extends Exception {
 	 *
 	 * @return A <code>Map</code> containing the error(s) trace
 	 */
-	public final Map<String, StatusCode> getErrorsTrace() {
+	public final Map<String, StatusCode> getErrorsTrace()
+    {
 		return this.errorsTrace;
 	}
 
@@ -74,7 +94,8 @@ public class DnsServiceException extends Exception {
 	 * @return A <code>String</code> with a printable version of the error(s)
 	 * trace
 	 */
-	public final String printableErrorsTrace() {
+	public final String printableErrorsTrace()
+    {
 		StringBuilder builder = new StringBuilder();
         builder.append(";; ERROR TRACE\n");
 		if (this.errorsTrace != null) {

@@ -13,7 +13,8 @@ import java.util.Objects;
  * @version 1.0
  * @since 2015/05/02
  */
-public final class Fqdn {
+public final class Fqdn
+{
 
     /**
      * Quoting template for escaped FQDNs.
@@ -34,7 +35,8 @@ public final class Fqdn {
      *
      * @param domain A <code>String</code> containing a root domain name
      */
-    public Fqdn(String domain) {
+    public Fqdn(String domain)
+    {
         this("", domain);
     }
 
@@ -45,7 +47,8 @@ public final class Fqdn {
      * @param entityLabel A <code>String</code> containing an entity's label
      * @param domain A <code>String</code> containing a root domain name
      */
-    public Fqdn(String entityLabel, String domain) {
+    public Fqdn(String entityLabel, String domain)
+    {
         ValidatorUtil.isValidDomainName(domain.endsWith(".") ? domain : domain + ".");
         ValidatorUtil.check(entityLabel != null);
         this.entityLabel = entityLabel.trim();
@@ -58,7 +61,8 @@ public final class Fqdn {
      * @return A <code>String</code> containing the FQDN
      */
     // TODO Remove in favour of toString()
-    public String fqdn() {
+    public String fqdn()
+    {
         return buildFQDN("");
     }
 
@@ -68,19 +72,22 @@ public final class Fqdn {
      * @param prefix A <code>String</code> containing prefix to be concatenated
      * @return A <code>String</code> containing the FQDN concatenated with the prefix
      */
-    public String fqdnWithPrefix(String prefix) {
-        return buildFQDN(prefix);
+    public String fqdnWithPrefix(String prefix)
+    {
+        String builtFqdn = buildFQDN("");
+        if(builtFqdn.contains(prefix))
+            return builtFqdn;
+        else
+            return buildFQDN(prefix);
     }
-
-    ;
-
 
 	/**
 	 * Return the entity's label.
 	 *
 	 * @return A <code>String</code> containing the entity's label
 	 */
-	public String label() {
+	public String label()
+    {
         return this.entityLabel;
     }
 
@@ -89,7 +96,8 @@ public final class Fqdn {
      *
      * @return A <code>String</code> containing the root domain name
      */
-    public String domain() {
+    public String domain()
+    {
         return this.domain;
     }
 
@@ -99,7 +107,8 @@ public final class Fqdn {
      * @param prefix A <code>String</code> containing a prefix to be concatenated
      * @return A <code>String</code> containing a FQDN comprehensive of <i>prefix</i>
      */
-    private String buildFQDN(String prefix) {
+    private String buildFQDN(String prefix)
+    {
         StringBuilder builder = new StringBuilder();
         if (prefix != null && !prefix.isEmpty()) {
             builder.append(prefix).append(Constants.DNS_LABEL_DELIMITER);
@@ -121,12 +130,14 @@ public final class Fqdn {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return buildFQDN("");
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj)
+    {
         if (obj == null) {
             return false;
         }
@@ -144,7 +155,8 @@ public final class Fqdn {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int hash = 3;
         hash = 47 * hash + Objects.hashCode(this.entityLabel);
         hash = 47 * hash + Objects.hashCode(this.domain);

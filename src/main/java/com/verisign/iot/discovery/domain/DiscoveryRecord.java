@@ -10,7 +10,8 @@ import java.util.Objects;
  * @since 1.0
  * @version May 2, 2015
  */
-public abstract class DiscoveryRecord implements Comparable<DiscoveryRecord> {
+public abstract class DiscoveryRecord implements Comparable<DiscoveryRecord>
+{
 
     /**
      * A <code>String</code> containing this resource record raw textual data.
@@ -21,20 +22,24 @@ public abstract class DiscoveryRecord implements Comparable<DiscoveryRecord> {
      */
     protected final long ttl;
 
-    public DiscoveryRecord() {
+    public DiscoveryRecord()
+    {
         this("", 0L);
     }
 
-    public DiscoveryRecord(String rData, long ttl) {
+    public DiscoveryRecord(String rData, long ttl)
+    {
         this.rData = rData;
         this.ttl = ttl;
     }
 
-    public String getRData() {
+    public String getRData()
+    {
         return this.rData;
     }
 
-    public long getTtl() {
+    public long getTtl()
+    {
         return this.ttl;
     }
 
@@ -70,12 +75,14 @@ public abstract class DiscoveryRecord implements Comparable<DiscoveryRecord> {
     public abstract String toDisplay();
 
     @Override
-    public int compareTo(DiscoveryRecord t) {
+    public int compareTo(DiscoveryRecord t)
+    {
         return this.rData.compareTo(t.getRData());
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int hash = 3;
         hash = 97 * hash + Objects.hashCode(this.rData);
         hash = 97 * hash + (int) (this.ttl ^ (this.ttl >>> 32));
@@ -83,7 +90,8 @@ public abstract class DiscoveryRecord implements Comparable<DiscoveryRecord> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj)
+    {
         if (obj == null) {
             return false;
         }
@@ -101,7 +109,8 @@ public abstract class DiscoveryRecord implements Comparable<DiscoveryRecord> {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return String.format("%d %s", this.ttl, this.rData);
     }
 

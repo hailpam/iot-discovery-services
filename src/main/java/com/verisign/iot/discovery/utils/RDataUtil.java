@@ -7,14 +7,16 @@ import org.xbill.DNS.TextParseException;
 /**
  * Created by tjmurphy on 6/2/15.
  */
-public class RDataUtil {
+public class RDataUtil
+{
 
 	/**
 	 * Extract the service-type dns-label prefix from a PTR record's rdata. If label is not found, return <code>null</code>.
 	 * @param rData
 	 * @return dnsLabel
 	 */
-	public static String getDnsLabelFromRData(String rData){
+	public static String getDnsLabelFromRData(String rData)
+    {
 		if(rData == null || rData.trim().isEmpty()){
 			throw new IllegalArgumentException( "rData cannot be null, empty, or blank" );
 		}
@@ -42,7 +44,8 @@ public class RDataUtil {
 		throw new IllegalArgumentException( "could not extract dns label from rData" );
 	}
 
-	public static String getServiceTypeNameFromRData(String rData){
+	public static String getServiceTypeNameFromRData(String rData)
+    {
 		if(rData == null || rData.trim().isEmpty()){
 			throw new IllegalArgumentException( "rData cannot be null, empty, or blank" );
 		}

@@ -35,7 +35,14 @@ import org.xbill.DNS.Type;
  * @version 1.0
  * @since 2015/05/02
  */
-public final class DnsUtil {
+public final class DnsUtil
+{
+
+    private static final String INSECURE = "insecure";
+    private static final String CHAIN_OF_TRUST = "chain of trust";
+    private static final String NO_DATA = "nodata";
+    private static final String NO_SIGNATURE = "missing signature";
+
 
     /**
      * Instantiate a DNS <code>Resolver</code> by the provided Server. In case of DNSSEC validation
@@ -48,7 +55,9 @@ public final class DnsUtil {
      * @throws ConfigurationException Exceptional circumstances in which <code>Resolver</code>
      * cannot be created.
      */
-    public static Resolver getResolver(boolean dnsSec, String trustAnchor, String server) throws ConfigurationException {
+    public static Resolver getResolver(boolean dnsSec, String trustAnchor, String server)
+                            throws ConfigurationException
+    {
         Resolver resolver = instantiateResolver(dnsSec, trustAnchor, server);
         if (resolver == null) {
             throw new ConfigurationException(String.format("Unable to retrieve a Resolver from [%s]", server));
@@ -67,7 +76,9 @@ public final class DnsUtil {
      * @throws ConfigurationException Exceptional circumstances in which no default
      * <code>Resolver</code> can be created.
      */
-    public static Map<String, Resolver> getResolvers(boolean dnsSec, String trustAnchor) throws ConfigurationException {
+    public static Map<String, Resolver> getResolvers(boolean dnsSec, String trustAnchor)
+                                            throws ConfigurationException
+    {
         String[] servers = ResolverConfig.getCurrentConfig().servers();
         Map<String, Resolver> resolvers = new LinkedHashMap<>(servers.length);
         for (String server : servers) {
@@ -93,33 +104,40 @@ public final class DnsUtil {
      * @throws LookupException Containing the specific <code>StatusCode</code> defining the error
      * that has been raised.
      */
-    public static boolean checkDnsSec(Fqdn name, Resolver resolver) throws LookupException {
+    public static boolean checkDnsSec(Fqdn name, Resolver resolver) throws LookupException
+    {
         try {
             ValidatingResolver validating = (ValidatingResolver) resolver;
             Record toValidate = Record.newRecord(Name.fromConstantString(name.fqdn()), Type.A, DClass.IN);
             Message dnsResponse = validating.send(Message.newQuery(toValidate));
-            if (dnsResponse.getRcode() == Rcode.NXDOMAIN) {
-                // non existing domain
-                Map<String, StatusCode> errorsTrace = new LinkedHashMap<>();
-                errorsTrace.put(name.fqdn(), StatusCode.RESOLUTION_NAME_ERROR);
-                throw ExceptionsUtil.build(StatusCode.RESOLUTION_NAME_ERROR,
-                        String.format("Unable to resolve: [%s]", name),
-                        errorsTrace);
-            } else if (!dnsResponse.getHeader().getFlag(Flags.AD)
-                    && !(dnsResponse.getRcode() == Rcode.NOERROR)) {
-                // no AD Flag, and normally a SERVFAIL status
-                RRset[] rrSets = dnsResponse.getSectionRRsets(Section.ADDITIONAL);
-                StringBuilder reason = new StringBuilder("");
-                for (RRset rrset : rrSets) {
-                    if (rrset.getName().equals(Name.root) && rrset.getType() == Type.TXT
-                            && rrset.getDClass() == ValidatingResolver.VALIDATION_REASON_QCLASS) {
-                        reason.append(TextRecord.build((TXTRecord) rrset.first()).getRData());
-                    }
+            RRset[] rrSets = dnsResponse.getSectionRRsets(Section.ADDITIONAL);
+            StringBuilder reason = new StringBuilder("");
+            for (RRset rrset : rrSets) {
+                if (rrset.getName().equals(Name.root) && rrset.getType() == Type.TXT
+                        && rrset.getDClass() == ValidatingResolver.VALIDATION_REASON_QCLASS) {
+                    reason.append(TextRecord.build((TXTRecord) rrset.first()).getRData());
                 }
-                throw ExceptionsUtil.build(StatusCode.RESOURCE_INSECURE_ERROR,
-                        String.format("Failed DNSSEC validation for [%s]: [%s]", name, reason.toString()),
-                        new LinkedHashMap<String, StatusCode>());
             }
+            StatusCode outcome = StatusCode.SUCCESSFUL_OPERATION;
+            if(dnsResponse.getRcode() == Rcode.SERVFAIL) {
+                if(reason.toString().toLowerCase().contains(INSECURE) ||
+                    reason.toString().toLowerCase().contains(CHAIN_OF_TRUST))
+                    outcome = StatusCode.RESOURCE_INSECURE_ERROR;
+                else if(reason.toString().toLowerCase().contains(NO_SIGNATURE))
+                    outcome = StatusCode.RESOLUTION_NAME_ERROR;
+                else if(reason.toString().toLowerCase().contains(NO_DATA))
+                    outcome = StatusCode.NETWORK_ERROR;
+            }else if(dnsResponse.getRcode() == Rcode.NXDOMAIN) {
+                outcome = StatusCode.RESOLUTION_NAME_ERROR;
+            }else if(dnsResponse.getRcode() == Rcode.NOERROR &&
+                        !dnsResponse.getHeader().getFlag(Flags.AD)) {
+                outcome = StatusCode.RESOURCE_INSECURE_ERROR;
+            }
+
+            if(outcome != StatusCode.SUCCESSFUL_OPERATION)
+                throw ExceptionsUtil.build(outcome,
+                                           "DNSSEC Validation Failed",
+                                           new LinkedHashMap<String, StatusCode>());
         } catch (IOException e) {
             // it might be a transient error network: retry with next Resolver
             return false;
@@ -132,19 +150,15 @@ public final class DnsUtil {
      * Validate the DNS <code>Lookup</code>, catching any transient or blocking issue.
      *
      * @param lookup A <code>Lookup</code> used to pull Resource Records
-     * @param resolver A <code>Resolver</code> used to lookup
-     * @param name A <code>Fqdn</code> representing the domain name looked up
-     * @param dnsSec <code>true</code> iff the validation has to check the DNSSEC trust chain
      * @return A <code>StatusCode</code> with the check outcome
      * @throws LookupException Containing the specific <code>StatusCode</code> defining the error
      * that has been raised.
      */
-    public static StatusCode checkLookupStatus(Lookup lookup, Resolver resolver, Fqdn name, boolean dnsSec)
-            throws LookupException {
+    public static StatusCode checkLookupStatus(Lookup lookup)
+                                throws LookupException
+    {
         StatusCode outcome = null;
-        if (lookup.getResult() == Lookup.TRY_AGAIN && dnsSec) {
-            outcome = (checkDnsSec(name, resolver) ? StatusCode.SUCCESSFUL_OPERATION : StatusCode.NETWORK_ERROR);
-        } else if (lookup.getResult() == Lookup.TRY_AGAIN) {
+        if (lookup.getResult() == Lookup.TRY_AGAIN) {
             outcome = StatusCode.NETWORK_ERROR;
         } else if (lookup.getResult() == Lookup.UNRECOVERABLE) {
             outcome = StatusCode.SERVER_ERROR;
@@ -173,7 +187,8 @@ public final class DnsUtil {
      * that has been raised.
      */
     public static Lookup instantiateLookup(String domainName, Resolver resolver, int rrType, Cache cache)
-            throws LookupException {
+                            throws LookupException
+    {
         Lookup lookup = null;
         try {
             lookup = new Lookup(domainName, rrType);
@@ -195,7 +210,8 @@ public final class DnsUtil {
      * @param server Server to use as DNS resolver
      * @return <code>null</code> in case the <code>Resolver</code> cannot be instantiated
      */
-    private static Resolver instantiateResolver(boolean dnsSec, String trustAnchor, String server) {
+    private static Resolver instantiateResolver(boolean dnsSec, String trustAnchor, String server)
+    {
         try {
             Resolver resolver = new SimpleResolver(server);
             if (!dnsSec) {
@@ -211,7 +227,8 @@ public final class DnsUtil {
         }
     }
 
-    private DnsUtil() {
+    private DnsUtil()
+    {
         throw new AssertionError(String.format("No instances of %s for you!", this.getClass().getName()));
     }
 
