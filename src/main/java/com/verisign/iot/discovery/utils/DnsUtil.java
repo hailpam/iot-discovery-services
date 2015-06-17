@@ -54,7 +54,9 @@ public final class DnsUtil {
      * @throws ConfigurationException Exceptional circumstances in which <code>Resolver</code>
      * cannot be created.
      */
-    public static Resolver getResolver(boolean dnsSec, String trustAnchor, String server) throws ConfigurationException {
+    public static Resolver getResolver(boolean dnsSec, String trustAnchor, String server) 
+                            throws ConfigurationException 
+    {
         Resolver resolver = instantiateResolver(dnsSec, trustAnchor, server);
         if (resolver == null) {
             throw new ConfigurationException(String.format("Unable to retrieve a Resolver from [%s]", server));
@@ -73,7 +75,9 @@ public final class DnsUtil {
      * @throws ConfigurationException Exceptional circumstances in which no default
      * <code>Resolver</code> can be created.
      */
-    public static Map<String, Resolver> getResolvers(boolean dnsSec, String trustAnchor) throws ConfigurationException {
+    public static Map<String, Resolver> getResolvers(boolean dnsSec, String trustAnchor) 
+                                            throws ConfigurationException 
+    {
         String[] servers = ResolverConfig.getCurrentConfig().servers();
         Map<String, Resolver> resolvers = new LinkedHashMap<>(servers.length);
         for (String server : servers) {
@@ -99,7 +103,8 @@ public final class DnsUtil {
      * @throws LookupException Containing the specific <code>StatusCode</code> defining the error
      * that has been raised.
      */
-    public static boolean checkDnsSec(Fqdn name, Resolver resolver) throws LookupException {
+    public static boolean checkDnsSec(Fqdn name, Resolver resolver) throws LookupException 
+    {
         try {
             ValidatingResolver validating = (ValidatingResolver) resolver;
             Record toValidate = Record.newRecord(Name.fromConstantString(name.fqdn()), Type.A, DClass.IN);
@@ -144,15 +149,13 @@ public final class DnsUtil {
      * Validate the DNS <code>Lookup</code>, catching any transient or blocking issue.
      *
      * @param lookup A <code>Lookup</code> used to pull Resource Records
-     * @param resolver A <code>Resolver</code> used to lookup
-     * @param name A <code>Fqdn</code> representing the domain name looked up
-     * @param dnsSec <code>true</code> iff the validation has to check the DNSSEC trust chain
      * @return A <code>StatusCode</code> with the check outcome
      * @throws LookupException Containing the specific <code>StatusCode</code> defining the error
      * that has been raised.
      */
     public static StatusCode checkLookupStatus(Lookup lookup)
-            throws LookupException {
+                                throws LookupException 
+    {
         StatusCode outcome = null;
         if (lookup.getResult() == Lookup.TRY_AGAIN) {
             outcome = StatusCode.NETWORK_ERROR;
@@ -183,7 +186,8 @@ public final class DnsUtil {
      * that has been raised.
      */
     public static Lookup instantiateLookup(String domainName, Resolver resolver, int rrType, Cache cache)
-            throws LookupException {
+                            throws LookupException 
+    {
         Lookup lookup = null;
         try {
             lookup = new Lookup(domainName, rrType);
@@ -205,7 +209,8 @@ public final class DnsUtil {
      * @param server Server to use as DNS resolver
      * @return <code>null</code> in case the <code>Resolver</code> cannot be instantiated
      */
-    private static Resolver instantiateResolver(boolean dnsSec, String trustAnchor, String server) {
+    private static Resolver instantiateResolver(boolean dnsSec, String trustAnchor, String server) 
+    {
         try {
             Resolver resolver = new SimpleResolver(server);
             if (!dnsSec) {
@@ -221,7 +226,8 @@ public final class DnsUtil {
         }
     }
 
-    private DnsUtil() {
+    private DnsUtil() 
+    {
         throw new AssertionError(String.format("No instances of %s for you!", this.getClass().getName()));
     }
 
