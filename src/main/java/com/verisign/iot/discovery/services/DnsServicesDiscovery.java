@@ -403,7 +403,9 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
          * @param browsingDomain <code>Fqdn</code> representing the browsing domain
          * @param type A <code>String</code> defining the Service Type to be looked up
          * @param secValidation  <code>true</code> in case secure browsing is needed
+         * 
          * @return A set of <code>String</code> identifying the retrieve Service records.
+         * 
          * @throws LookupException In case of any unrecoverable error during the lookup process.
          * @throws ConfigurationException In case of wrong/faulty static and/or runtime
          * configuration.
@@ -468,7 +470,9 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
          * @param browsingDomain <code>Fqdn</code> representing the browsing domain
          * @param type A <code>String</code> defining the Service Type to be looked up
          * @param secValidation  <code>true</code> in case secure browsing is needed
+         * 
          * @return A set of <code>String</code> identifying the retrieve Service records.
+         * 
          * @throws LookupException In case of any unrecoverable error during the lookup process.
          * @throws ConfigurationException In case of wrong/faulty static and/or runtime
          * configuration.
@@ -524,14 +528,21 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
 
         /**
          * 
-         * @param browsingDomain
-         * @param tlsaPrefix
-         * @param secValidation
-         * @return
-         * @throws LookupException
-         * @throws ConfigurationException 
+         * Retrieve a set of TLSA Records from the browsing domain, according to the
+         * specified <i>options</i>.
+         *
+         * @param browsingDomain <code>Fqdn</code> representing the browsing domain
+         * @param tlsaPrefix A <code>String</code> defining the TLSA prefix as couple 
+         *                   <code>port:protocol</code>
+         * @param secValidation  <code>true</code> in case secure browsing is needed
+         * 
+         * @return A set of <code>String</code> identifying the retrieve Service records.
+         * 
+         * @throws LookupException        In case of any unrecoverable error during the lookup process.
+         * @throws ConfigurationException In case of wrong/faulty static and/or runtime configuration.
          */
-        public Set<TLSADiscoveryRecord> tlsaRecords(Fqdn browsingDomain, TLSAPrefix tlsaPrefix, boolean secValidation)
+        public Set<TLSADiscoveryRecord> tlsaRecords(Fqdn browsingDomain, TLSAPrefix tlsaPrefix, 
+                                                    boolean secValidation)
                                             throws LookupException, ConfigurationException 
         {
             Map<String, Resolver> resolvers = retrieveResolvers(secValidation);
