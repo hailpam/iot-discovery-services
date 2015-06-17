@@ -69,7 +69,11 @@ public final class Fqdn {
      * @return A <code>String</code> containing the FQDN concatenated with the prefix
      */
     public String fqdnWithPrefix(String prefix) {
-        return buildFQDN(prefix);
+        String builtFqdn = buildFQDN("");
+        if(builtFqdn.contains(prefix))
+            return builtFqdn;
+        else
+            return buildFQDN(prefix);
     }
 
     ;

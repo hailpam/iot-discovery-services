@@ -169,7 +169,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         Set<TextRecord> result = null;
         try {
             result = new LinkedHashSet<>();
-            result.addAll(this.helper.serviceTexts(browsingDomain, label, secValidation));
+            Fqdn txtFqdn = new Fqdn(label, browsingDomain.domain());
+            result.addAll(this.helper.serviceTexts(txtFqdn, label, secValidation));
             if (result.isEmpty() && !ExceptionsUtil.onlyNameResolutionTrace(this.errorsTrace.get())) {
                 throw ExceptionsUtil.build(StatusCode.RESOURCE_LOOKUP_ERROR,
                         String.format("Unable to resolve [%s]", browsingDomain.fqdnWithPrefix(label)),
@@ -314,7 +315,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         {
             Map<String, Resolver> resolvers = retrieveResolvers(secValidation);
             RecordsContainer set = new RecordsContainer();
-            DnsServicesDiscovery.this.errorsTrace.get().clear();
+            errorsTrace.get().clear();
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
             LookupContext ctx = context(browsingDomain, Constants.SERVICES_DNS_SD_UDP, "", "",
                     Type.PTR, secValidation
@@ -337,7 +338,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                             || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
-                        DnsServicesDiscovery.this.errorsTrace.get().put(
+                        errorsTrace.get().put(
                                 ExceptionsUtil.traceKey(resolver, browsingDomain.fqdn(),
                                         "Retrieving-Types"), le.dnsError());
                     }
@@ -364,7 +365,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         {
             Map<String, Resolver> resolvers = retrieveResolvers(secValidation);
             RecordsContainer set = new RecordsContainer();
-            DnsServicesDiscovery.this.errorsTrace.get().clear();
+            errorsTrace.get().clear();
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
             LookupContext ctx = context(browsingDomain, label, label, "", Type.TXT, secValidation);
             String server = null;
@@ -385,7 +386,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                             || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
-                        DnsServicesDiscovery.this.errorsTrace.get().put(
+                        errorsTrace.get().put(
                                 ExceptionsUtil.traceKey(resolver, browsingDomain.fqdnWithPrefix(label),
                                         "Retrieving-Texts"),
                                 le.dnsError());
@@ -415,7 +416,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         {
             Map<String, Resolver> resolvers = retrieveResolvers(secValidation);
             Set<ServiceRecord> records = new TreeSet<>();
-            DnsServicesDiscovery.this.errorsTrace.get().clear();
+            errorsTrace.get().clear();
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
             LookupContext ctx = context(browsingDomain, "", "", type, Type.PTR, secValidation);
             String server = null;
@@ -452,7 +453,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                             || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
-                        DnsServicesDiscovery.this.errorsTrace.get().put(
+                        errorsTrace.get().put(
                                 ExceptionsUtil.traceKey(resolver, browsingDomain.fqdnWithPrefix(type),
                                         "Retrieving-Records"),
                                 le.dnsError());
@@ -482,7 +483,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         {
             Map<String, Resolver> resolvers = retrieveResolvers(secValidation);
             Set<ServiceInstance> instances = new TreeSet<>();
-            DnsServicesDiscovery.this.errorsTrace.get().clear();
+            errorsTrace.get().clear();
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
             LookupContext ctx = context(browsingDomain, "", "", type, Type.PTR, secValidation);
             String server = null;
@@ -515,7 +516,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                             || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
-                        DnsServicesDiscovery.this.errorsTrace.get().put(
+                        errorsTrace.get().put(
                                 ExceptionsUtil.traceKey(resolver, browsingDomain.fqdnWithPrefix(type),
                                         "Retrieving-Instances"),
                                 le.dnsError());
@@ -547,7 +548,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         {
             Map<String, Resolver> resolvers = retrieveResolvers(secValidation);
             Set<TLSADiscoveryRecord> tlsaDiscoveryRecords = new TreeSet<>();
-            DnsServicesDiscovery.this.errorsTrace.get().clear();
+            errorsTrace.get().clear();
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
             String tlsaFqdn = tlsaPrefix.toString() + Constants.DNS_LABEL_DELIMITER + browsingDomain.fqdn();
             Fqdn browsingDomainWithTLSAPrefix = new Fqdn(tlsaFqdn);
@@ -572,7 +573,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                             || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
-                        DnsServicesDiscovery.this.errorsTrace.get().put(
+                        errorsTrace.get().put(
                                 ExceptionsUtil.traceKey(resolver, browsingDomain.domain(),
                                         "Retrieving-Instances"),
                                 le.dnsError());
@@ -596,7 +597,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
             Lookup lookup = DnsUtil.instantiateLookup(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
                                                       ctx.getResolver(),
                                                       ctx.getRrType(),
-                                                      DnsServicesDiscovery.this.smimeACache);
+                                                      smimeACache);
             ctx.setLookup(lookup);
             if(ctx.isSecure())
                 DnsUtil.checkDnsSec(ctx.getDomainName(), ctx.getResolver());
@@ -607,7 +608,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
             if (outcome.equals(StatusCode.SERVER_ERROR) || outcome.equals(StatusCode.NETWORK_ERROR)) {
                 throw ExceptionsUtil.build(outcome, String.format("Unable to resolve [%s]",
                         ctx.getDomainName()),
-                        DnsServicesDiscovery.this.errorsTrace.get());
+                        errorsTrace.get());
             } else {
                 errorsTrace.get().put(
                         ExceptionsUtil.traceKey(ctx.getResolver(), ctx.getResolver().toString() + ctx.getDomainName(),
@@ -643,7 +644,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                 throw ExceptionsUtil.build(StatusCode.SERVER_ERROR,
                         String.format("Unable to retrieve DNS Label for [%s]",
                                 ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix())),
-                        DnsServicesDiscovery.this.errorsTrace.get());
+                        errorsTrace.get());
             } else {
                 return dnsLabel;
             }
@@ -790,7 +791,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                     } else if (record instanceof TXTRecord) {
                         set.getTexts().add(TextRecord.build((TXTRecord) record));
                     } else {
-                        DnsServicesDiscovery.this.errorsTrace.get().put(
+                        errorsTrace.get().put(
                                 ExceptionsUtil.traceKey(record.toString(), dnsLabel,
                                         "Parsing-Service-Records"),
                                 StatusCode.RESOURCE_UNEXPECTED);
