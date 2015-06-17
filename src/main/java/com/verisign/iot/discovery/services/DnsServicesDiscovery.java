@@ -6,12 +6,12 @@ import com.verisign.iot.discovery.commons.Constants;
 import com.verisign.iot.discovery.commons.LookupContext;
 import com.verisign.iot.discovery.commons.StatusChangeEvent;
 import com.verisign.iot.discovery.commons.StatusCode;
+import com.verisign.iot.discovery.domain.CertRecord;
 import com.verisign.iot.discovery.domain.Fqdn;
 import com.verisign.iot.discovery.domain.PointerRecord;
 import com.verisign.iot.discovery.domain.RecordsContainer;
 import com.verisign.iot.discovery.domain.ServiceInstance;
 import com.verisign.iot.discovery.domain.ServiceRecord;
-import com.verisign.iot.discovery.domain.CertRecord;
 import com.verisign.iot.discovery.domain.TLSAPrefix;
 import com.verisign.iot.discovery.domain.TextRecord;
 import com.verisign.iot.discovery.exceptions.ConfigurationException;
@@ -639,7 +639,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
             }
 
             if (dnsLabel == null) {
-                throw ExceptionsUtil.build(StatusCode.SERVER_ERROR,
+                throw ExceptionsUtil.build(StatusCode.RESOLUTION_NAME_ERROR,
                         FormattingUtil.unableToRetrieveLabel(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix())),
                         errorsTrace.get());
             } else {

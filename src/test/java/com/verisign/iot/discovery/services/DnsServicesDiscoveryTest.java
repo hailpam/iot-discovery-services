@@ -20,7 +20,7 @@ import org.junit.Test;
 /**
  * @author pmaresca <pmaresca@verisign.com>
  */
-public class DnsServicesDiscoveryTest implements Observer 
+public class DnsServicesDiscoveryTest implements Observer
 {
 
     public static final String DNS_RESOVLER = "198.41.1.1";
@@ -38,8 +38,8 @@ public class DnsServicesDiscoveryTest implements Observer
 
     private DnsServicesDiscovery discovery;
 
-    
-    public DnsServicesDiscoveryTest() 
+
+    public DnsServicesDiscoveryTest()
     {
     }
 
@@ -50,7 +50,7 @@ public class DnsServicesDiscoveryTest implements Observer
     public void tearDown() {}
 
     @Test
-    public void listServiceInstances() 
+    public void listServiceInstances()
     {
         try {
             this.discovery = new DnsServicesDiscovery();
@@ -78,7 +78,7 @@ public class DnsServicesDiscoveryTest implements Observer
     }
 
     @Test
-    public void listServiceInstancesError() 
+    public void listServiceInstancesError()
     {
         try {
             this.discovery = new DnsServicesDiscovery();
@@ -96,9 +96,9 @@ public class DnsServicesDiscoveryTest implements Observer
         Fqdn name = new Fqdn(SERVICE_DOMAIN_1);
         try {
             Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, SERVICE_TYPE_1, false);
-            Assert.fail("Expected Lookup Error");
-        } catch (LookupException ex) {
             Assert.assertTrue(true);
+        } catch (LookupException ex) {
+            Assert.fail("Expected an empty set");
         } catch (ConfigurationException ex) {
             Assert.fail("Expected correct configuration, not " + ex.toString());
         }
@@ -106,7 +106,7 @@ public class DnsServicesDiscoveryTest implements Observer
     }
 
     @Test
-    public void listServiceInstancesErrorDomainNotExistent() 
+    public void listServiceInstancesErrorDomainNotExistent()
     {
         try {
             this.discovery = new DnsServicesDiscovery();
@@ -124,9 +124,9 @@ public class DnsServicesDiscoveryTest implements Observer
         Fqdn name = new Fqdn("habla.1.iotverisign.com");
         try {
             Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, "mqtt", false);
-            Assert.fail("Expected a Lookup Error");
-        } catch (LookupException ex) {
             Assert.assertTrue(true);
+        } catch (LookupException ex) {
+            Assert.fail("Expected an empty set");
         } catch (ConfigurationException ex) {
             Assert.fail("Expected correct configuration, not " + ex.toString());
         }
@@ -134,7 +134,7 @@ public class DnsServicesDiscoveryTest implements Observer
     }
 
     @Test
-    public void checkDnsSecError() 
+    public void checkDnsSecError()
     {
         try {
             this.discovery = new DnsServicesDiscovery();
@@ -177,7 +177,7 @@ public class DnsServicesDiscoveryTest implements Observer
     }
 
     @Test
-    public void checkDnsSec() 
+    public void checkDnsSec()
     {
         try {
             this.discovery = new DnsServicesDiscovery();
@@ -248,7 +248,7 @@ public class DnsServicesDiscoveryTest implements Observer
     }
 
     @Test
-    public void listServiceTypes() 
+    public void listServiceTypes()
     {
         try {
             this.discovery = new DnsServicesDiscovery();
@@ -276,7 +276,7 @@ public class DnsServicesDiscoveryTest implements Observer
     }
 
     @Test
-    public void listServiceTexts() 
+    public void listServiceTexts()
     {
         try {
             this.discovery = new DnsServicesDiscovery();
@@ -314,7 +314,7 @@ public class DnsServicesDiscoveryTest implements Observer
     }
 
     @Test
-    public void listServiceTextsBadResolver() 
+    public void listServiceTextsBadResolver()
     {
         try {
             this.discovery = new DnsServicesDiscovery();
@@ -342,7 +342,7 @@ public class DnsServicesDiscoveryTest implements Observer
     }
 
     @Override
-    public void update(Observable o, Object o1) 
+    public void update(Observable o, Object o1)
     {
         System.out.println(o1.toString());
     }
