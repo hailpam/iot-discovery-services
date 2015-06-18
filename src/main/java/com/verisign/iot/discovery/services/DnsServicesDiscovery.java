@@ -137,31 +137,6 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
     }
 
     @Override
-    public Set<ServiceRecord> listServiceRecords(Fqdn browsingDomain, String type, boolean secValidation)
-                                throws LookupException, ConfigurationException
-    {
-        ValidatorUtil.isValidDomainName(browsingDomain);
-        ValidatorUtil.isValidLabel(type);
-        validatedConf();
-        Set<ServiceRecord> result = null;
-        try {
-            result = new TreeSet<>();
-            result.addAll(this.helper.serviceRecords(browsingDomain, type, secValidation));
-            if (result.isEmpty() && !ExceptionsUtil.onlyNameResolutionTrace(this.errorsTrace.get())) {
-                throw ExceptionsUtil.build(StatusCode.RESOURCE_LOOKUP_ERROR,
-                        FormattingUtil.unableToResolve(browsingDomain.fqdnWithPrefix(type)),
-                        errorsTrace.get());
-            }
-        } catch (LookupException | ConfigurationException exception) {
-            throw exception;
-        } finally {
-            errorsTrace.remove();
-        }
-
-        return result;
-    }
-
-    @Override
     public Set<TextRecord> listTextRecords(Fqdn browsingDomain, String label, boolean secValidation)
                                 throws LookupException, ConfigurationException
     {
@@ -393,73 +368,6 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
             } while (itrResolvers.hasNext() && set.getTexts().isEmpty());
 
             return set.getTexts();
-        }
-
-        /**
-         * Retrieve a set of Service Resource Records from the browsing domain, according to the
-         * specified <i>type</i>.
-         *
-         * @param browsingDomain <code>Fqdn</code> representing the browsing domain
-         * @param type A <code>String</code> defining the Service Type to be looked up
-         * @param secValidation  <code>true</code> in case secure browsing is needed
-         *
-         * @return A set of <code>String</code> identifying the retrieve Service records.
-         *
-         * @throws LookupException In case of any unrecoverable error during the lookup process.
-         * @throws ConfigurationException In case of wrong/faulty static and/or runtime
-         * configuration.
-         */
-        public Set<ServiceRecord> serviceRecords(Fqdn browsingDomain, String type, boolean secValidation)
-                                    throws LookupException, ConfigurationException
-        {
-            Map<String, Resolver> resolvers = retrieveResolvers(secValidation);
-            Set<ServiceRecord> records = new TreeSet<>();
-            errorsTrace.get().clear();
-            Iterator<String> itrResolvers = resolvers.keySet().iterator();
-            LookupContext ctx = context(browsingDomain, "", "", type, Type.PTR, secValidation);
-            String server = null;
-            do {
-                server = itrResolvers.next();
-                Resolver resolver = resolvers.get(server);
-                ctx.setResolver(resolver);
-                statusChange(FormattingUtil.server(server));
-                try {
-                    String dnsLabel = retrieveDnsLabel(ctx);
-                    ctx.setDnsLabel(dnsLabel);
-                    statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
-                            Type.string(ctx.getRrType()),
-                            StatusChangeEvent.castedValue(ctx.getDomainName().fqdnWithPrefix(dnsLabel))));
-                    Set<String> zones = retrieveDnsZones(ctx);
-                    ctx.setDomainName(browsingDomain);
-                    statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
-                            Type.string(ctx.getRrType()),
-                            StatusChangeEvent.castedList(zones)));
-                    Set<String> names = retrieveDnsNames(ctx, zones);
-                    ctx.setDomainName(browsingDomain);
-                    statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
-                            Type.string(ctx.getRrType()),
-                            StatusChangeEvent.castedList(names)));
-                    records.addAll(retrieveDnsRecords(ctx, names));
-                    ctx.setDomainName(browsingDomain);
-                    statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
-                            Type.string(ctx.getRrType()),
-                            StatusChangeEvent.castedList(records)));
-                } catch (LookupException le) {
-                    if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
-                        throw  le;
-                    } else if (le.dnsError().equals(StatusCode.SERVER_ERROR)
-                            || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
-                        throw le;
-                    } else {
-                        errorsTrace.get().put(
-                                ExceptionsUtil.traceKey(resolver, browsingDomain.fqdnWithPrefix(type),
-                                        "Retrieving-Records"),
-                                le.dnsError());
-                    }
-                }
-            } while (itrResolvers.hasNext() && records.isEmpty());
-
-            return records;
         }
 
         /**

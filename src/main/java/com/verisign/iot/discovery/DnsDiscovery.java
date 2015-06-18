@@ -2,7 +2,6 @@ package com.verisign.iot.discovery;
 
 import com.verisign.iot.discovery.domain.Fqdn;
 import com.verisign.iot.discovery.domain.ServiceInstance;
-import com.verisign.iot.discovery.domain.ServiceRecord;
 import com.verisign.iot.discovery.domain.CertRecord;
 import com.verisign.iot.discovery.domain.TLSAPrefix;
 import com.verisign.iot.discovery.domain.TextRecord;
@@ -19,7 +18,7 @@ import java.util.Set;
  * @see <a href="https://tools.ietf.org/html/rfc6763">DNS-SD</a>
  * @since 2015/05/02
  */
-public interface DnsDiscovery extends DnsSecChecker 
+public interface DnsDiscovery extends DnsSecChecker
 {
 
 	/**
@@ -27,13 +26,13 @@ public interface DnsDiscovery extends DnsSecChecker
 	 *
 	 * @param browsingDomain A <code>Fqdn</code> referring the browsing domain
 	 * @param secValidation  <code>true</code> iff DNSSEC trust chain has to be validated
-	 * 
+	 *
      * @return A set of <code>String</code> referring the registered Service Types
-	 * 
+	 *
      * @throws LookupException        In case of any unrecoverable error during the lookup process.
 	 * @throws ConfigurationException In case of wrong/faulty static and/or runtime configuration.
 	 */
-	Set<String> listServiceTypes ( Fqdn browsingDomain, boolean secValidation ) 
+	Set<String> listServiceTypes ( Fqdn browsingDomain, boolean secValidation )
                     throws LookupException, ConfigurationException;
 
 	/**
@@ -42,28 +41,13 @@ public interface DnsDiscovery extends DnsSecChecker
 	 * @param browsingDomain A <code>Fqdn</code> referring the browsing domain
 	 * @param type           A <code>String</code> identifying the Service Type
      * @param secValidation  <code>true</code> iff DNSSEC trust chain has to be validated
-	 * 
+	 *
      * @return A set of <code>ServiceInstance</code> objects
-     * 
+     *
 	 * @throws LookupException        In case of any unrecoverable error during the lookup process.
 	 * @throws ConfigurationException In case of wrong/faulty static and/or runtime configuration.
 	 */
-	Set<ServiceInstance> listServiceInstances ( Fqdn browsingDomain, String type, boolean secValidation ) 
-                            throws LookupException, ConfigurationException;
-
-	/**
-	 * List the Service Resource Records under the provided domain, of the defined <i>type</i>.
-	 *
-	 * @param browsingDomain A <code>Fqdn</code> referring the browsing domain
-	 * @param type           A <code>String</code> identifying the Service Type
-	 * @param secValidation  <code>true</code> iff DNSSEC trust chain has to be validated
-     * 
-     * @return A set of <code>ServiceInstance</code> objects
-	 * 
-     * @throws LookupException        In case of any unrecoverable error during the lookup process.
-	 * @throws ConfigurationException In case of wrong/faulty static and/or runtime configuration.
-	 */
-	Set<ServiceRecord> listServiceRecords ( Fqdn browsingDomain, String type, boolean secValidation ) 
+	Set<ServiceInstance> listServiceInstances ( Fqdn browsingDomain, String type, boolean secValidation )
                             throws LookupException, ConfigurationException;
 
 	/**
@@ -72,13 +56,13 @@ public interface DnsDiscovery extends DnsSecChecker
 	 * @param browsingDomain A <code>Fqdn</code> referring the browsing domain
 	 * @param label          A <code>String</code> identifying the label to be looked up
      * @param secValidation  <code>true</code> iff DNSSEC trust chain has to be validated
-     * 
+     *
 	 * @return A set of <code>ServiceInstance</code> objects
-	 * 
+	 *
      * @throws LookupException        In case of any unrecoverable error during the lookup process.
 	 * @throws ConfigurationException In case of wrong/faulty static and/or runtime configuration.
 	 */
-	Set<TextRecord> listTextRecords ( Fqdn browsingDomain, String label, boolean secValidation ) 
+	Set<TextRecord> listTextRecords ( Fqdn browsingDomain, String label, boolean secValidation )
                         throws LookupException, ConfigurationException;
 
 	/**
@@ -87,15 +71,15 @@ public interface DnsDiscovery extends DnsSecChecker
 	 * @param browsingDomain A <code>Fqdn</code> referring the browsing domain
 	 * @param tlsaPrefix          An object which provides the TLSA record prefix based on port and protocol
 	 * @param secValidation  <code>true</code> iff DNSSEC trust chain has to be validated
-     * 
+     *
      * @return A set of <code>CertRecord</code> objects
-	 * 
+	 *
      * @throws LookupException        In case of any unrecoverable error during the lookup process.
 	 * @throws ConfigurationException In case of wrong/faulty static and/or runtime configuration.
-     * 
+     *
      * @see <a href="https://tools.ietf.org/html/rfc6698">DNS-Based Authentication of Named Entities (DANE)</a>
 	 */
-	Set<CertRecord> listTLSARecords ( Fqdn browsingDomain, TLSAPrefix tlsaPrefix, 
-                                               boolean secValidation ) 
+	Set<CertRecord> listTLSARecords ( Fqdn browsingDomain, TLSAPrefix tlsaPrefix,
+                                               boolean secValidation )
                                 throws LookupException, ConfigurationException;
 }

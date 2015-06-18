@@ -16,6 +16,7 @@ public enum StatusCode
     SUCCESSFUL_OPERATION((short) 10000, "Successful DNS Operation"),
     CONFIGURATION_ERROR((short) 10001, "Inconsistent secured DNS settings"),
     NETWORK_ERROR((short) 10002, "Unreachable DNS or timeout expired"),
+    ILLEGAL_FQDN((short) 10003, "Provided an illegal FQDN"),
     RESOURCE_LOOKUP_ERROR((short) 9003, "DNS Resolution error"),
     RESOURCE_INSECURE_ERROR((short) 9505, "Unsecured DNS packet"),
     RESOURCE_UNEXPECTED((short) 9506, "Unexpected Resource Record Type"),
