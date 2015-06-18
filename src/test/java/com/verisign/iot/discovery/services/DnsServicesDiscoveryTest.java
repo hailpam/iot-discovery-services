@@ -3,7 +3,6 @@ package com.verisign.iot.discovery.services;
 import com.verisign.iot.discovery.commons.Constants;
 import com.verisign.iot.discovery.domain.Fqdn;
 import com.verisign.iot.discovery.domain.ServiceInstance;
-import com.verisign.iot.discovery.domain.ServiceRecord;
 import com.verisign.iot.discovery.domain.TextRecord;
 import com.verisign.iot.discovery.exceptions.ConfigurationException;
 import com.verisign.iot.discovery.exceptions.LookupException;
@@ -218,33 +217,6 @@ public class DnsServicesDiscoveryTest implements Observer
         catch (LookupException ex) {
             Assert.assertTrue(true);
         }
-    }
-
-    @Test
-    public void listServiceRecords() {
-        try {
-            this.discovery = new DnsServicesDiscovery();
-            this.discovery.dnsSecDomain(Constants.DEFAULT_DNSSEC_DOMAIN)
-                          .dnsServer(InetAddress.getByName(DNS_RESOVLER))
-                          .trustAnchorDefault(Constants.DEFAULT_TRUST_ANCHOR)
-                          .introspected(true)
-                          .observer(this)
-                          .checkConfiguration(true);
-        } catch (UnknownHostException ex) {
-            Assert.fail("Expected correct initialization, not " + ex.toString());
-        } catch (ConfigurationException ex) {
-            Assert.fail("Expected correct configuration, not " + ex.toString());
-        }
-        Fqdn name = new Fqdn(SERVICE_DOMAIN);
-        try {
-            Set<ServiceRecord> rec = this.discovery.listServiceRecords(name, SERVICE_TYPE, false);
-            Assert.assertTrue(rec.size() > 0);
-        } catch (LookupException ex) {
-            Assert.fail("Expected correct configuration, not " + ex.toString());
-        } catch (ConfigurationException ex) {
-            Assert.fail("Expected correct configuration, not " + ex.toString());
-        }
-
     }
 
     @Test
