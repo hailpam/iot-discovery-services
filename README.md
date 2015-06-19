@@ -1,5 +1,5 @@
 # iot-discovery-services 
-Kiaora, and welcome to the iot-discovery-services project.
+Welcome to the iot-discovery-services project.
 The main purpose of the discovery library is to allow its clients (device, gateway, etc.) to securely discover services (eg. a message broker) and configuration (eg. topic names) for a specific service type (eg. MQTT) in a given domain name.
 It implements the [DNS-SD IETF RFC 7673 ](https://tools.ietf.org/html/rfc6763) which specifies how DNS resource records are named and structured to facilitate service discovery.
 
