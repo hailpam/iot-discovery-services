@@ -203,7 +203,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         do {
             server = itrResolvers.next();
             statusChange(FormattingUtil.server(server));
-            statusChange(FormattingUtil.query(name, "", "A"));
+            statusChange(FormattingUtil.query(name, "", "SOA"));
             try {
                 validated = DnsUtil.checkDnsSec(name, resolvers.get(server));
                 if (validated) {
