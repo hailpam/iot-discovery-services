@@ -100,15 +100,16 @@ public final class DnsUtil
      *
      * @param name A <code>Fqdn</code> representing the validating domain
      * @param resolver A DNS <code>Resovler</code> to be used in this validation
+     * @param rType An integer representing the record type
      * @return <code>true</code> iff the DNSSEC is valid
      * @throws LookupException Containing the specific <code>StatusCode</code> defining the error
      * that has been raised.
      */
-    public static boolean checkDnsSec(Fqdn name, Resolver resolver) throws LookupException
+    public static boolean checkDnsSec(Fqdn name, Resolver resolver, int rType) throws LookupException
     {
         try {
             ValidatingResolver validating = (ValidatingResolver) resolver;
-            Record toValidate = Record.newRecord(Name.fromConstantString(name.fqdn()), Type.SOA, DClass.IN);
+            Record toValidate = Record.newRecord(Name.fromConstantString(name.fqdn()), rType, DClass.IN);
             Message dnsResponse = validating.send(Message.newQuery(toValidate));
             RRset[] rrSets = dnsResponse.getSectionRRsets(Section.ADDITIONAL);
             StringBuilder reason = new StringBuilder("");
@@ -120,13 +121,13 @@ public final class DnsUtil
             }
             StatusCode outcome = StatusCode.SUCCESSFUL_OPERATION;
             if(dnsResponse.getRcode() == Rcode.SERVFAIL) {
-                if(reason.toString().toLowerCase().contains(INSECURE) ||
-                    reason.toString().toLowerCase().contains(CHAIN_OF_TRUST))
+                if(reason.toString().toLowerCase().contains(CHAIN_OF_TRUST) ||
+                        reason.toString().toLowerCase().contains(INSECURE))
                     outcome = StatusCode.RESOURCE_INSECURE_ERROR;
-                else if(reason.toString().toLowerCase().contains(NO_SIGNATURE))
-                    outcome = StatusCode.RESOLUTION_NAME_ERROR;
                 else if(reason.toString().toLowerCase().contains(NO_DATA))
                     outcome = StatusCode.NETWORK_ERROR;
+                else if(reason.toString().toLowerCase().contains(NO_SIGNATURE))
+                    outcome = StatusCode.RESOLUTION_NAME_ERROR;
             }else if(dnsResponse.getRcode() == Rcode.NXDOMAIN) {
                 outcome = StatusCode.RESOLUTION_NAME_ERROR;
             }else if(dnsResponse.getRcode() == Rcode.NOERROR &&
