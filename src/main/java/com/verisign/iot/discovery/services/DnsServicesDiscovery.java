@@ -203,9 +203,9 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         do {
             server = itrResolvers.next();
             statusChange(FormattingUtil.server(server));
-            statusChange(FormattingUtil.query(name, "", "A"));
+            statusChange(FormattingUtil.query(name, "", "SOA"));
             try {
-                validated = DnsUtil.checkDnsSec(name, resolvers.get(server));
+                validated = DnsUtil.checkDnsSec(name, resolvers.get(server), Type.SOA);
                 if (validated) {
                     statusChange(FormattingUtil.response(FormattingUtil.authenticData(name.fqdn())));
                 } else {
@@ -505,8 +505,10 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                                                       ctx.getRrType(),
                                                       smimeACache);
             ctx.setLookup(lookup);
-            if(ctx.isSecure())
-                DnsUtil.checkDnsSec(ctx.getDomainName(), ctx.getResolver());
+            if(ctx.isSecure()) {
+                Fqdn toCheck = new Fqdn(ctx.getPrefix(), ctx.getDomainName().domain());
+                DnsUtil.checkDnsSec(toCheck, ctx.getResolver(), ctx.getRrType());
+            }
             Record[] records = lookup.run();
             statusChange(FormattingUtil.query(ctx.getDomainName(), ctx.getPrefix(),
                          Type.string(ctx.getRrType())));
