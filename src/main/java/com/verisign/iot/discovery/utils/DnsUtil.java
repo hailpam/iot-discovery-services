@@ -108,7 +108,7 @@ public final class DnsUtil
     {
         try {
             ValidatingResolver validating = (ValidatingResolver) resolver;
-            Record toValidate = Record.newRecord(Name.fromConstantString(name.fqdn()), Type.A, DClass.IN);
+            Record toValidate = Record.newRecord(Name.fromConstantString(name.fqdn()), Type.SOA, DClass.IN);
             Message dnsResponse = validating.send(Message.newQuery(toValidate));
             RRset[] rrSets = dnsResponse.getSectionRRsets(Section.ADDITIONAL);
             StringBuilder reason = new StringBuilder("");
