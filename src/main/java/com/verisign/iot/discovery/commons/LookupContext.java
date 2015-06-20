@@ -19,6 +19,8 @@ public final class LookupContext implements Serializable
 	private static final long serialVersionUID = 448226124178324159L;
 	/** Resolver to be used during the lookup. */
 	private Resolver resolver;
+    /** Validating Resolver to be used during the DNSSEC check. */
+    private Resolver valResolver;
 	/** Instantiated @ Lookup} to be used. */
 	private Lookup lookup;
 	/** Fully Qualified Domain Name to lookup to (according to the other parameters). */
@@ -48,6 +50,17 @@ public final class LookupContext implements Serializable
 		this.resolver = resolver;
 	}
 
+    public Resolver getValResolver ()
+    {
+		return this.valResolver;
+	}
+
+
+	public void setValResolver ( Resolver resolver )
+    {
+		this.valResolver = resolver;
+	}
+    
 	public Lookup getLookup ()
     {
 		return this.lookup;

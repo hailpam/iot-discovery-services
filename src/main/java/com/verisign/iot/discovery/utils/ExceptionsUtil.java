@@ -73,7 +73,9 @@ public final class ExceptionsUtil
     {
         int cntr = 0;
         for(StatusCode status: trace.values())
-            if(status.equals(StatusCode.RESOLUTION_NAME_ERROR)) cntr += 1;
+            if(status.equals(StatusCode.RESOLUTION_NAME_ERROR) ||
+               status.equals(StatusCode.RESOLUTION_RR_TYPE_ERROR))  
+                cntr += 1;
 
         return (cntr == trace.size());
     }

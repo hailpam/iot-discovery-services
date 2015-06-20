@@ -286,7 +286,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         public Set<String> serviceTypes(Fqdn browsingDomain, boolean secValidation)
                                 throws LookupException, ConfigurationException
         {
-            Map<String, Resolver> resolvers = retrieveResolvers(secValidation);
+            Map<String, Resolver> resolvers = retrieveResolvers(false);
+            Map<String, Resolver> valResolvers = retrieveResolvers(true);
             RecordsContainer set = new RecordsContainer();
             errorsTrace.get().clear();
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
@@ -298,6 +299,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                 server = itrResolvers.next();
                 Resolver resolver = resolvers.get(server);
                 ctx.setResolver(resolver);
+                Resolver valResolver = valResolvers.get(server);
+                ctx.setValResolver(valResolver);
                 statusChange(FormattingUtil.server(server));
                 try {
                     Record[] records = lookup(ctx);
@@ -336,7 +339,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         public Set<TextRecord> serviceTexts(Fqdn browsingDomain, String label, boolean secValidation)
                                     throws LookupException, ConfigurationException
         {
-            Map<String, Resolver> resolvers = retrieveResolvers(secValidation);
+            Map<String, Resolver> resolvers = retrieveResolvers(false);
+            Map<String, Resolver> valResolvers = retrieveResolvers(true);
             RecordsContainer set = new RecordsContainer();
             errorsTrace.get().clear();
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
@@ -346,6 +350,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                 server = itrResolvers.next();
                 Resolver resolver = resolvers.get(server);
                 ctx.setResolver(resolver);
+                Resolver valResolver = valResolvers.get(server);
+                ctx.setValResolver(valResolver);
                 statusChange(FormattingUtil.server(server));
                 try {
                     Record[] records = lookup(ctx);
@@ -387,7 +393,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         public Set<ServiceInstance> serviceInstances(Fqdn browsingDomain, String type, boolean secValidation)
                                         throws LookupException, ConfigurationException
         {
-            Map<String, Resolver> resolvers = retrieveResolvers(secValidation);
+            Map<String, Resolver> resolvers = retrieveResolvers(false);
+            Map<String, Resolver> valResolvers = retrieveResolvers(true);
             Set<ServiceInstance> instances = new TreeSet<>();
             errorsTrace.get().clear();
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
@@ -397,6 +404,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                 server = itrResolvers.next();
                 Resolver resolver = resolvers.get(server);
                 ctx.setResolver(resolver);
+                Resolver valResolver = valResolvers.get(server);
+                ctx.setValResolver(valResolver);
                 statusChange(FormattingUtil.server(server));
                 try {
                     String dnsLabel = retrieveDnsLabel(ctx);
@@ -452,7 +461,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                                                     boolean secValidation)
                                             throws LookupException, ConfigurationException
         {
-            Map<String, Resolver> resolvers = retrieveResolvers(secValidation);
+            Map<String, Resolver> resolvers = retrieveResolvers(false);
+            Map<String, Resolver> valResolvers = retrieveResolvers(true);
             Set<CertRecord> tlsaDiscoveryRecords = new TreeSet<>();
             errorsTrace.get().clear();
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
@@ -464,6 +474,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                 server = itrResolvers.next();
                 Resolver resolver = resolvers.get(server);
                 ctx.setResolver(resolver);
+                Resolver valResolver = valResolvers.get(server);
+                ctx.setValResolver(valResolver);
                 statusChange(FormattingUtil.server(server));
                 try {
                     Record[] records = lookup(ctx);
@@ -505,15 +517,17 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                                                       ctx.getRrType(),
                                                       smimeACache);
             ctx.setLookup(lookup);
-            if(ctx.isSecure()) {
-                Fqdn toCheck = new Fqdn(ctx.getPrefix(), ctx.getDomainName().domain());
-                DnsUtil.checkDnsSec(toCheck, ctx.getResolver(), ctx.getRrType());
-            }
             Record[] records = lookup.run();
             statusChange(FormattingUtil.query(ctx.getDomainName(), ctx.getPrefix(),
                          Type.string(ctx.getRrType())));
             StatusCode outcome = DnsUtil.checkLookupStatus(lookup);
-            if (outcome.equals(StatusCode.SERVER_ERROR) || outcome.equals(StatusCode.NETWORK_ERROR)) {
+            if(outcome == StatusCode.SUCCESSFUL_OPERATION) {
+                if(records != null && records.length > 0 && ctx.isSecure()) {
+                    Fqdn toCheck = new Fqdn(ctx.getPrefix(), ctx.getDomainName().domain());
+                    DnsUtil.checkDnsSec(toCheck, ctx.getValResolver(), ctx.getRrType());
+                }
+            }else if (outcome.equals(StatusCode.SERVER_ERROR) || 
+                      outcome.equals(StatusCode.NETWORK_ERROR)) {
                 throw ExceptionsUtil.build(outcome,
                                            FormattingUtil.unableToResolve(ctx.getDomainName().fqdn()),
                                            errorsTrace.get());
@@ -722,6 +736,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                     LookupContext labelRecordContext = context(lookupContext.getDomainName(), labelRecordName,
                                                                "", "", Type.PTR, lookupContext.isSecure());
                     labelRecordContext.setResolver(lookupContext.getResolver());
+                    labelRecordContext.setValResolver(lookupContext.getValResolver());
                     Record[] nameRecordArray = lookup(labelRecordContext);
 
                     if (nameRecordArray.length == 0 || nameRecordArray[0] == null) {
