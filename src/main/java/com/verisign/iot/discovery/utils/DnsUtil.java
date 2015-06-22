@@ -42,6 +42,8 @@ public final class DnsUtil
     private static final String CHAIN_OF_TRUST = "chain of trust";
     private static final String NO_DATA = "nodata";
     private static final String NO_SIGNATURE = "missing signature";
+    private static final String MISSING_KEY = "missing dnskey rrset";
+    private static final String NSEC3_NO_DS = "nsec3s proved no ds";
 
 
     /**
@@ -126,10 +128,14 @@ public final class DnsUtil
                     outcome = StatusCode.RESOURCE_INSECURE_ERROR;
                 else if(reason.toString().toLowerCase().contains(NO_DATA))
                     outcome = StatusCode.NETWORK_ERROR;
-                else if(reason.toString().toLowerCase().contains(NO_SIGNATURE))
+                else if(reason.toString().toLowerCase().contains(NO_SIGNATURE) ||
+                        reason.toString().toLowerCase().contains(MISSING_KEY))
                     outcome = StatusCode.RESOLUTION_NAME_ERROR;
             }else if(dnsResponse.getRcode() == Rcode.NXDOMAIN) {
-                outcome = StatusCode.RESOLUTION_NAME_ERROR;
+                if(reason.toString().toLowerCase().contains(NSEC3_NO_DS))
+                    outcome = StatusCode.RESOURCE_INSECURE_ERROR;
+                else
+                    outcome = StatusCode.RESOLUTION_NAME_ERROR;
             }else if(dnsResponse.getRcode() == Rcode.NOERROR &&
                         !dnsResponse.getHeader().getFlag(Flags.AD)) {
                 outcome = StatusCode.RESOURCE_INSECURE_ERROR;
