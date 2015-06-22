@@ -74,7 +74,7 @@ The Domain Name System Security Extensions (DNSSec) is a technology designed to 
 The iot-discovery-services library abstracts the complexity of using raw DNS records. For the sake of completeness, this section describes a concrete example of provisioned DNS Records for service discovery. We use the command line [bind utility dig](https://www.isc.org/downloads/bind/) to retrieve the DNS Records. The domain name used to host this example is 7pqg77uhvroq.1.iotverisign.com.
 
 ### Listing service types
-This command lists the DNS labels for which a service type was provisioned. It is a query for PTR records for the "_services._dns-sd._udp" label.
+After new service instances have been provisioned, this command lists the DNS labels for which a service type was provisioned. It is a query for PTR records for the "_services._dns-sd._udp" label.
 
 ```
 $ dig +noall +answer _services._dns-sd._udp.7pqg77uhvroq.1.iotverisign.com PTR
