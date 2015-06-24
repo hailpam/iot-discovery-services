@@ -91,7 +91,11 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
     public Set<String> listServiceTypes(Fqdn browsingDomain, boolean secValidation)
                         throws LookupException, ConfigurationException
     {
-        ValidatorUtil.isValidDomainName(browsingDomain);
+        try {
+            ValidatorUtil.isValidDomainName(browsingDomain);
+        } catch(IllegalArgumentException exception) {
+            throw new LookupException(StatusCode.ILLEGAL_FQDN, browsingDomain.fqdn());
+        }
         validatedConf();
         Set<String> result = null;
         try {
@@ -115,7 +119,11 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
     public Set<ServiceInstance> listServiceInstances(Fqdn browsingDomain, String type, boolean secValidation)
             throws LookupException, ConfigurationException
     {
-        ValidatorUtil.isValidDomainName(browsingDomain);
+        try {
+            ValidatorUtil.isValidDomainName(browsingDomain);
+        } catch(IllegalArgumentException exception) {
+            throw new LookupException(StatusCode.ILLEGAL_FQDN, browsingDomain.fqdn());
+        }
         ValidatorUtil.isValidLabel(type);
         validatedConf();
         Set<ServiceInstance> result = null;
@@ -140,7 +148,11 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
     public Set<TextRecord> listTextRecords(Fqdn browsingDomain, String label, boolean secValidation)
                                 throws LookupException, ConfigurationException
     {
-        ValidatorUtil.isValidDomainName(browsingDomain);
+        try {
+            ValidatorUtil.isValidDomainName(browsingDomain);
+        } catch(IllegalArgumentException exception) {
+            throw new LookupException(StatusCode.ILLEGAL_FQDN, browsingDomain.fqdn());
+        }
         ValidatorUtil.isValidLabel(label);
         validatedConf();
         Set<TextRecord> result = null;
@@ -167,7 +179,11 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                                                     boolean secValidation)
                                         throws LookupException, ConfigurationException
     {
-        ValidatorUtil.isValidDomainName(browsingDomain);
+        try {
+            ValidatorUtil.isValidDomainName(browsingDomain);
+        } catch(IllegalArgumentException exception) {
+            throw new LookupException(StatusCode.ILLEGAL_FQDN, browsingDomain.fqdn());
+        }
         validatedConf();
         Set<CertRecord> result = null;
         try {
@@ -190,7 +206,11 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
     @Override
     public boolean isDnsSecValid(Fqdn name) throws LookupException, ConfigurationException
     {
-        ValidatorUtil.isValidDomainName(name);
+        try {
+            ValidatorUtil.isValidDomainName(name);
+        } catch(IllegalArgumentException exception) {
+            throw new LookupException(StatusCode.ILLEGAL_FQDN, name.fqdn());
+        }
         validatedConf();
         if (name == null || name.fqdn().isEmpty()) {
             name = new Fqdn(this.dnsSecDomain);
@@ -216,6 +236,12 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                     statusChange(FormattingUtil.response(FormattingUtil.unableToResolve(name.fqdn())));
                 } else {
                     statusChange(FormattingUtil.response(FormattingUtil.unableToValidate(name.fqdn())));
+                }
+
+                if (le.dnsError() == StatusCode.RESOURCE_INSECURE_ERROR) {
+                    throw ExceptionsUtil.build(StatusCode.DNSSEC_STATUS_ERROR,
+                      "DNSSEC Validation Failed",
+                      new LinkedHashMap<String, StatusCode>());
                 }
                 throw le;
             }
