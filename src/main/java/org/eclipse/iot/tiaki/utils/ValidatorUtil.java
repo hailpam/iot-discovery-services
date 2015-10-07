@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2015, Verisign, Inc.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ */
+
 package org.eclipse.iot.tiaki.utils;
 
 import org.eclipse.iot.tiaki.domain.Fqdn;
@@ -5,10 +14,7 @@ import org.eclipse.iot.tiaki.domain.Fqdn;
 /**
  * A collection of static utility methods to deal with parameter validations.
  *
- * @author pmaresca <pmaresca@verisign.com>
- * @version 1.0
- * @since 2015/05/02
- */
+  */
 public final class ValidatorUtil
 {
 
