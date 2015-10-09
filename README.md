@@ -108,3 +108,7 @@ The response indicates that there are two records:
 - one TXT which gives some configuration information
 
 Instead of using ANY, we could restrict the query to either SRV or TXT records.
+
+# License
+Eclipse Public License - v 1.0
+https://www.eclipse.org/legal/epl-v10.html

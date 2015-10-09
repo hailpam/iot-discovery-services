@@ -13,8 +13,10 @@ import java.util.Observer;
 import org.xbill.DNS.ResolverConfig;
 
 /**
- * An abstract configurable entity that can be introspected: it extends {@link Observable} and in
- * case of verbosity it is able to push its observer {@link Observer}.
+ * An abstract configurable entity that can be introspected: it makes use of an {@link Observable}
+ * helper class that can push notification to its observers {@link Observer} in case of verbose setup.
+ *
+ * Configuration steps are not Thread-safe. 
  *
  * @author pmaresca <pmaresca@verisign.com>
  * @version 1.0
@@ -76,6 +78,7 @@ public abstract class Configurable
     {
         this.dnsServers.add(host);
         this.checked = false;
+
         return this;
     }
 
@@ -89,6 +92,7 @@ public abstract class Configurable
     {
         this.dnsSecDomain = domain;
         this.checked = false;
+
         return this;
     }
 
@@ -102,6 +106,7 @@ public abstract class Configurable
     {
         this.trustAnchorDefault = anchor;
         this.checked = false;
+
         return this;
     }
 
@@ -115,6 +120,7 @@ public abstract class Configurable
     {
         this.trustAnchorFile = anchorContainer;
         this.checked = false;
+
         return this;
     }
 
@@ -129,6 +135,7 @@ public abstract class Configurable
     {
         this.introspected = isIt;
         this.checked = false;
+
         return this;
     }
 
@@ -144,6 +151,7 @@ public abstract class Configurable
             this.notifier.addObserver(handler);
             this.checked = false;
         }
+
         return this;
     }
 
@@ -151,9 +159,10 @@ public abstract class Configurable
      * To check the actual configuration.
      *
      * @param reloadConfig  <code>true</code> iff the configuration has to be reloaded
+     *
      * @throws ConfigurationException In case this instance has not been configured properly
      */
-    public synchronized void checkConfiguration(boolean reloadConfig) throws ConfigurationException
+    public void checkConfiguration(boolean reloadConfig) throws ConfigurationException
     {
 
         if (!reloadConfig && this.checked) {

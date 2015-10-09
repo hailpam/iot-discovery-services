@@ -372,7 +372,7 @@ public class DnsServicesDiscoveryTest implements Observer
         Fqdn name = new Fqdn(TEST_DOMAIN);
         Set<TextRecord> rec = null;
         try {
-            rec = this.discovery.listTextRecords(name, "example", true);
+            rec = this.discovery.listTextRecords(name, "example", false);
             Assert.assertTrue(rec.size() == 2);
         } catch (LookupException ex) {
             Assert.fail("Expected a successful lookup");
