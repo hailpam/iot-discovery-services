@@ -1,6 +1,7 @@
 package com.verisign.iot.discovery.services;
 
 import com.verisign.iot.discovery.commons.Constants;
+import com.verisign.iot.discovery.domain.CompoundLabel;
 import com.verisign.iot.discovery.domain.Fqdn;
 import com.verisign.iot.discovery.domain.ServiceInstance;
 import com.verisign.iot.discovery.domain.TextRecord;
@@ -28,9 +29,16 @@ public class DnsServicesDiscoveryTest implements Observer
     public static final String SERVICE_TYPE = "coapspecial";
     public static final String SERVICE_DOMAIN = "n67423p6tgxq.1.iotverisign.com";
     public static final String SERVICE_DOMAIN_1 = "kfjljohydgsa.1.iotqa.end-points.com";
+    public static final String SERVICE_DOMAIN_2 = "jnm6cmzwsmyq.2.iotverisign.com";
+    public static final String SERVICE_DOMAIN_3 = "dns-sd.org";
     public static final String TEST_DOMAIN = "com";
     public static final String SERVICE_LABEL = "coap";
     public static final String SERVICE_TYPE_1 = "mqft";
+    public static final String SERVICE_TYPE_2 = "tcpmux";
+    public static final String SERVICE_TYPE_3 = "http";
+    public static final String SERVICE_TYPE_4 = "ssh";
+    public static final String SERVICE_TYPE_5 = "pdl-datastream";
+    public static final String SERVICE_SUBTYPE = "printer";
     public static final String SERVICE_NAME = "_coapspecial._udp.avu7unxcs7ia.1.iotverisign.com";
     public static final String SERVICE_TEXT = "f5j4pf5vaw1osjnj4nggdmy2ycl1axlm64knkrayhfsstcxe56ctwnxho1coap";
     public static final String BAD_SERVICE_DOMAIN = "google.totosdfgsdfgsdfgsdfgsdfgsdfgsdfgsdfg";
@@ -66,7 +74,8 @@ public class DnsServicesDiscoveryTest implements Observer
         }
         Fqdn name = new Fqdn(SERVICE_DOMAIN);
         try {
-            Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, SERVICE_TYPE, false);
+            CompoundLabel type = new CompoundLabel(SERVICE_TYPE, "", "udp");
+            Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, type, false);
             Assert.assertTrue(inst.size() > 0);
         } catch (LookupException ex) {
             Assert.fail("Expected successful lookup, not " + ex.toString());
@@ -77,7 +86,7 @@ public class DnsServicesDiscoveryTest implements Observer
     }
 
     @Test
-    public void listServiceInstancesError()
+    public void listServiceInstancesBySubType()
     {
         try {
             this.discovery = new DnsServicesDiscovery();
@@ -92,10 +101,43 @@ public class DnsServicesDiscoveryTest implements Observer
         } catch (ConfigurationException ex) {
             Assert.fail("Expected correct configuration, not " + ex.toString());
         }
-        Fqdn name = new Fqdn(SERVICE_DOMAIN_1);
+        Fqdn name = new Fqdn(SERVICE_DOMAIN_3);
         try {
-            Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, SERVICE_TYPE_1, false);
-            Assert.assertTrue(true);
+            CompoundLabel type = new CompoundLabel(SERVICE_TYPE_3, SERVICE_SUBTYPE);
+            Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, type, false);
+            Assert.assertTrue(inst.size() > 0);
+        } catch (LookupException ex) {
+            Assert.fail("Expected successful lookup, not " + ex.toString());
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+
+    }
+
+    @Test
+    public void listDnsSdStandardSetup()
+    {
+        try {
+            this.discovery = new DnsServicesDiscovery();
+            this.discovery.dnsSecDomain(Constants.DEFAULT_DNSSEC_DOMAIN)
+                          .dnsServer(InetAddress.getByName(DNS_RESOVLER))
+                          .trustAnchorDefault(Constants.DEFAULT_TRUST_ANCHOR)
+                          .introspected(true)
+                          .observer(this)
+                          .checkConfiguration(true);
+        } catch (UnknownHostException ex) {
+            Assert.fail("Expected correct initialization, not " + ex.toString());
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+        Fqdn name = new Fqdn(SERVICE_DOMAIN_3);
+        try {
+            CompoundLabel type = new CompoundLabel(SERVICE_TYPE_4);
+            Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, type, false);
+            Assert.assertTrue(inst.size() > 0);
+            type = new CompoundLabel(SERVICE_TYPE_5);
+            inst = this.discovery.listServiceInstances(name, type, false);
+            Assert.assertTrue(inst.size() > 0);
         } catch (LookupException ex) {
             Assert.fail("Expected an empty set");
         } catch (ConfigurationException ex) {
@@ -122,7 +164,8 @@ public class DnsServicesDiscoveryTest implements Observer
         }
         Fqdn name = new Fqdn("habla.1.iotverisign.com");
         try {
-            Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, "mqtt", false);
+            CompoundLabel type = new CompoundLabel("mqtt");
+            Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, type, false);
             Assert.assertTrue(true);
         } catch (LookupException ex) {
             Assert.fail("Expected an empty set");
@@ -308,6 +351,31 @@ public class DnsServicesDiscoveryTest implements Observer
             Assert.fail("Expected a Lookup Exception");
         } catch (LookupException ex) {
             Assert.assertTrue(true);
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+    }
+
+    @Test
+    public void listServiceTextsDefaultResolever()
+    {
+        try {
+            this.discovery = new DnsServicesDiscovery();
+            this.discovery.dnsSecDomain(Constants.DEFAULT_DNSSEC_DOMAIN)
+                          .trustAnchorDefault(Constants.DEFAULT_TRUST_ANCHOR)
+                          .introspected(true)
+                          .observer(this)
+                          .checkConfiguration(true);
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+        Fqdn name = new Fqdn(TEST_DOMAIN);
+        Set<TextRecord> rec = null;
+        try {
+            rec = this.discovery.listTextRecords(name, "example", true);
+            Assert.assertTrue(rec.size() == 2);
+        } catch (LookupException ex) {
+            Assert.fail("Expected a successful lookup");
         } catch (ConfigurationException ex) {
             Assert.fail("Expected correct configuration, not " + ex.toString());
         }

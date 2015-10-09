@@ -4,9 +4,13 @@ import com.verisign.iot.discovery.exceptions.ConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import org.xbill.DNS.ResolverConfig;
 
 /**
  * An abstract configurable entity that can be introspected: it extends {@link Observable} and in
@@ -22,7 +26,7 @@ public abstract class Configurable
     /**
      * DNS Server to be addressed.
      */
-    protected InetAddress dnsServer;
+    protected List<InetAddress> dnsServers;
     /**
      * Secured DNS Domain to be used.
      */
@@ -58,17 +62,19 @@ public abstract class Configurable
         this.introspected = false;
         this.checked = false;
         this.notifier = this.new Notifier();
+        this.dnsServers = new ArrayList<>();
     }
 
     /**
-     * Configure the target Resolution Server.
+     * Configure the target Resolution Server. Multiple calls set multiple target
+     * Resolution Servers.
      *
      * @param host Server's address
      * @return This instance to further configure
      */
     public final Configurable dnsServer(InetAddress host)
     {
-        this.dnsServer = host;
+        this.dnsServers.add(host);
         this.checked = false;
         return this;
     }
@@ -154,6 +160,17 @@ public abstract class Configurable
             return;
         }
 
+        if(this.dnsServers.isEmpty()) {
+            String[] resolvers = ResolverConfig.getCurrentConfig().servers();
+            for(String resolver: resolvers) {
+                try {
+                    this.dnsServers.add(InetAddress.getByName(resolver));
+                } catch(UnknownHostException uhe) { /* acceptable, go ahead */ }
+            }
+            if(this.dnsServers.isEmpty())
+                throw new ConfigurationException("Unable to retrieve default DNS resolvers");
+        }
+
         if (this.trustAnchorFile != null) {
             try {
                 this.trustAnchorDefault = new String(Files.readAllBytes(this.trustAnchorFile.toPath()));
@@ -225,7 +242,8 @@ public abstract class Configurable
     {
 
         @Override
-        public final void notifyObservers() {
+        public final void notifyObservers()
+        {
             setChanged();
             if (Configurable.this.introspected) {
                 super.notifyObservers();
@@ -233,7 +251,8 @@ public abstract class Configurable
         }
 
         @Override
-        public final void notifyObservers(Object arg) {
+        public final void notifyObservers(Object arg)
+        {
             setChanged();
             if (Configurable.this.introspected) {
                 super.notifyObservers(arg);

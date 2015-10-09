@@ -1,9 +1,10 @@
 package com.verisign.iot.discovery;
 
+import com.verisign.iot.discovery.domain.CertRecord;
+import com.verisign.iot.discovery.domain.DnsCertPrefix;
 import com.verisign.iot.discovery.domain.Fqdn;
 import com.verisign.iot.discovery.domain.ServiceInstance;
-import com.verisign.iot.discovery.domain.CertRecord;
-import com.verisign.iot.discovery.domain.TLSAPrefix;
+import com.verisign.iot.discovery.domain.CompoundLabel;
 import com.verisign.iot.discovery.domain.TextRecord;
 import com.verisign.iot.discovery.exceptions.ConfigurationException;
 import com.verisign.iot.discovery.exceptions.LookupException;
@@ -39,7 +40,7 @@ public interface DnsDiscovery extends DnsSecChecker
 	 * List the Service Instances under the provided domain, of the defined <i>type</i>.
 	 *
 	 * @param browsingDomain A <code>Fqdn</code> referring the browsing domain
-	 * @param type           A <code>String</code> identifying the Service Type
+	 * @param type           A compound data structure identifying the Service Type
      * @param secValidation  <code>true</code> iff DNSSEC trust chain has to be validated
 	 *
      * @return A set of <code>ServiceInstance</code> objects
@@ -47,7 +48,7 @@ public interface DnsDiscovery extends DnsSecChecker
 	 * @throws LookupException        In case of any unrecoverable error during the lookup process.
 	 * @throws ConfigurationException In case of wrong/faulty static and/or runtime configuration.
 	 */
-	Set<ServiceInstance> listServiceInstances ( Fqdn browsingDomain, String type, boolean secValidation )
+	Set<ServiceInstance> listServiceInstances ( Fqdn browsingDomain, CompoundLabel type, boolean secValidation )
                             throws LookupException, ConfigurationException;
 
 	/**
@@ -79,7 +80,7 @@ public interface DnsDiscovery extends DnsSecChecker
      *
      * @see <a href="https://tools.ietf.org/html/rfc6698">DNS-Based Authentication of Named Entities (DANE)</a>
 	 */
-	Set<CertRecord> listTLSARecords ( Fqdn browsingDomain, TLSAPrefix tlsaPrefix,
+	Set<CertRecord> listTLSARecords ( Fqdn browsingDomain, DnsCertPrefix tlsaPrefix,
                                                boolean secValidation )
                                 throws LookupException, ConfigurationException;
 }

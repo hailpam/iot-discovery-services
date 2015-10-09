@@ -111,10 +111,14 @@ public final class Fqdn
     {
         StringBuilder builder = new StringBuilder();
         if (prefix != null && !prefix.isEmpty()) {
-            builder.append(prefix).append(Constants.DNS_LABEL_DELIMITER);
+            builder.append(prefix);
+            if(!builder.toString().endsWith(Constants.DNS_LABEL_DELIMITER))
+                builder.append(Constants.DNS_LABEL_DELIMITER);
         }
         if (!this.entityLabel.isEmpty()) {
-            builder.append(this.entityLabel).append(Constants.DNS_LABEL_DELIMITER);
+            builder.append(this.entityLabel);
+            if(!builder.toString().endsWith(Constants.DNS_LABEL_DELIMITER))
+                builder.append(Constants.DNS_LABEL_DELIMITER);
         }
         builder.append(this.domain);
         if (!this.domain.endsWith(Constants.DNS_LABEL_DELIMITER)) {

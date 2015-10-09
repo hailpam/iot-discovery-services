@@ -1,3 +1,4 @@
+
 package com.verisign.iot.discovery.commons;
 
 /**
@@ -53,6 +54,11 @@ public final class Constants
 	 * UDP DNS label found in service type PTR records
 	 */
 	public static final String UDP = "_udp";
+
+    /**
+     * Subtype DNS-SD label to specify any subtype-based service lookup.
+     */
+    public static final String SUBTYPE = "_sub";
 
 	/**
 	 * Default protocol for TLSA record prefix

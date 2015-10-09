@@ -4,20 +4,24 @@ import com.verisign.iot.discovery.commons.Constants;
 import com.verisign.iot.discovery.utils.ValidatorUtil;
 
 /**
- * Created by tjmurphy on 6/4/15.
+ * DNS PKIX Certificate compound prefix.
+ *
+ * @author tjmurphy
+ * @version 1.0
+ * @since Mar 30, 2015
  */
-public class TLSAPrefix
+public class DnsCertPrefix
 {
 
     private int port;
     private String protocol;
 
-    public TLSAPrefix()
+    public DnsCertPrefix()
     {
         setDefaultValues();
     }
 
-    public TLSAPrefix(String initString)
+    public DnsCertPrefix(String initString)
     {
         parseInitString(initString);
     }
