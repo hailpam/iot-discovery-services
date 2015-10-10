@@ -20,10 +20,8 @@ import com.verisign.iot.discovery.exceptions.LookupException;
 import com.verisign.iot.discovery.utils.DnsUtil;
 import com.verisign.iot.discovery.utils.ExceptionsUtil;
 import com.verisign.iot.discovery.utils.FormattingUtil;
-import com.verisign.iot.discovery.utils.RDataUtil;
 import com.verisign.iot.discovery.utils.ValidatorUtil;
 import java.net.InetAddress;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -51,23 +49,14 @@ import org.xbill.DNS.Type;
 public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
 {
 
-    /**
-     * Lookup Cache.
-     */
+    /** Lookup Cache. */
     private Cache anyClassCache;
-    /**
-     * Thread-owned Errors trace.
-     */
+    /** Thread-owned Errors trace. */
     private ThreadLocal<Map<String, StatusCode>> errorsTrace;
-    /**
-     * DNS Lookup helper.
-     */
+    /** DNS Lookup helper. */
     private ServicesLookupHelper helper;
 
-    public DnsServicesDiscovery()
-    {
-        this(Constants.CACHE_SIZE, Constants.CACHE_TIME_LIMIT);
-    }
+    public DnsServicesDiscovery() { this(Constants.CACHE_SIZE, Constants.CACHE_TIME_LIMIT); }
 
     /**
      * Overloaded constructor taking as argument Cache size and TTL.
@@ -258,17 +247,17 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
      *
      * @param secValidation <code>true</code> iff DNSSEC validation id needed
      * @return Instance(s) of <code>Resolver</code>
-     * @throws ConfigurationException In case instance(s) of <code>Resolver</code> cannot he
-     * instantiated.
+     *
+     * @throws ConfigurationException
+     *      In case instance(s) of <code>Resolver</code> cannot he instantiated.
      */
     private Map<String, Resolver> retrieveResolvers(boolean secValidation)
                                     throws ConfigurationException
     {
         Map<String, Resolver> resolvers = new LinkedHashMap<>();
         for(InetAddress dnsServer: this.dnsServers) {
-            if (dnsServer != null
-                && (!dnsServer.getHostAddress().isEmpty()
-                || !dnsServer.getCanonicalHostName().isEmpty())) {
+            if (dnsServer != null && (!dnsServer.getHostAddress().isEmpty()
+                    || !dnsServer.getCanonicalHostName().isEmpty())) {
                 String server = ((dnsServer.getHostAddress().isEmpty())
                         ? dnsServer.getCanonicalHostName() : dnsServer.getHostAddress());
                 resolvers.put(server, DnsUtil.getResolver(secValidation, this.trustAnchorDefault, server));
@@ -283,10 +272,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
     /**
      * Resource Record holder type enumeration. It enumerates the types hold by DNS RRs.
      */
-    private enum RrHolderType {
-
-        NAMES, ZONES, TYPES, OTHER;
-    }
+    private enum RrHolderType { NAMES, ZONES, TYPES, OTHER; }
 
     /**
      * Private inner helper class to implement DNS-specific lookup operations.
@@ -295,35 +281,38 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
      * @version 1.0
      * @since 2015/05/02
      */
-    private class ServicesLookupHelper
+    // TODO Deal with DNSSECJava validation problems to avoid a double resolving process
+    private final class ServicesLookupHelper
     {
 
-        public ServicesLookupHelper()
-        {
-            super();
-        }
+        public ServicesLookupHelper() { super(); }
 
         /**
          * Retrieve a set of Service Types from the browsing domain.
          *
          * @param browsingDomain <code>Fqdn</code> representing the browsing domain
          * @param secValidation  <code>true</code> in case secure browsing is needed
+         *
          * @return A set of <code>String</code> identifying the retrieved Service Types.
-         * @throws LookupException In case of any unrecoverable error during the lookup process.
-         * @throws ConfigurationException In case of wrong/faulty static and/or runtime
-         * configuration.
+         *
+         * @throws LookupException
+         *      In case of any unrecoverable error during the lookup process.
+         *
+         * @throws ConfigurationException
+         *      In case of wrong/faulty static and/or runtime configuration.
          */
         public Set<String> serviceTypes(Fqdn browsingDomain, boolean secValidation)
                                 throws LookupException, ConfigurationException
         {
             Map<String, Resolver> resolvers = retrieveResolvers(false);
             Map<String, Resolver> valResolvers = retrieveResolvers(true);
+
             RecordsContainer set = new RecordsContainer();
             errorsTrace.get().clear();
+
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
-            LookupContext ctx = context(browsingDomain, Constants.SERVICES_DNS_SD_UDP, "", "",
-                    Type.PTR, secValidation
-            );
+            LookupContext ctx = DnsUtil.context(browsingDomain, Constants.SERVICES_DNS_SD_UDP, "", "",
+                                                Type.PTR, secValidation);
             String server = null;
             do {
                 server = itrResolvers.next();
@@ -332,16 +321,17 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                 Resolver valResolver = valResolvers.get(server);
                 ctx.setValResolver(valResolver);
                 statusChange(FormattingUtil.server(server));
+
                 try {
                     Record[] records = lookup(ctx);
-                    set.getLabels().addAll(helper.getServiceTypeNamesFromRecords(records, ctx));
+                    set.getLabels().addAll(DnsUtil.extractNamesFromRecords(records));
                     statusChange(StatusChangeEvent.build(browsingDomain.fqdn(), Type.string(Type.PTR),
-                            StatusChangeEvent.castedList(set.getLabels())));
+                                    StatusChangeEvent.castedList(set.getLabels())));
                 } catch (LookupException le) {
                     if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
                         throw  le;
                     } else if (le.dnsError().equals(StatusCode.SERVER_ERROR)
-                            || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
+                                || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
                         errorsTrace.get().put(
@@ -361,20 +351,25 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
          * @param browsingDomain <code>Fqdn</code> representing the browsing domain
          * @param label A label to be looked up
          * @param secValidation  <code>true</code> in case secure browsing is needed
+         *
          * @return A set of <code>String</code> identifying the retrieved Text records
-         * @throws LookupException In case of any unrecoverable error during the lookup process.
-         * @throws ConfigurationException In case of wrong/faulty static and/or runtime
-         * configuration.
+         *
+         * @throws LookupException
+         *      In case of any unrecoverable error during the lookup process.
+         * @throws ConfigurationException
+         *      In case of wrong/faulty static and/or runtime configuration.
          */
         public Set<TextRecord> serviceTexts(Fqdn browsingDomain, String label, boolean secValidation)
                                     throws LookupException, ConfigurationException
         {
             Map<String, Resolver> resolvers = retrieveResolvers(false);
             Map<String, Resolver> valResolvers = retrieveResolvers(true);
+
             RecordsContainer set = new RecordsContainer();
             errorsTrace.get().clear();
+
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
-            LookupContext ctx = context(browsingDomain, label, label, "", Type.TXT, secValidation);
+            LookupContext ctx = DnsUtil.context(browsingDomain, label, label, "", Type.TXT, secValidation);
             String server = null;
             do {
                 server = itrResolvers.next();
@@ -383,22 +378,22 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                 Resolver valResolver = valResolvers.get(server);
                 ctx.setValResolver(valResolver);
                 statusChange(FormattingUtil.server(server));
+
                 try {
                     Record[] records = lookup(ctx);
-                    parseRecords(records, set, "", RrHolderType.OTHER);
+                    parseRecords(records, set, RrHolderType.OTHER);
                     statusChange(StatusChangeEvent.build(browsingDomain.fqdnWithPrefix(label),
-                            Type.string(Type.TXT), StatusChangeEvent.castedList(set.getTexts())));
+                                    Type.string(Type.TXT), StatusChangeEvent.castedList(set.getTexts())));
                 } catch (LookupException le) {
                     if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
                         throw  le;
                     } else if (le.dnsError().equals(StatusCode.SERVER_ERROR)
-                            || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
+                                    || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
                         errorsTrace.get().put(
                                 ExceptionsUtil.traceKey(resolver, browsingDomain.fqdnWithPrefix(label),
-                                        "Retrieving-Texts"),
-                                le.dnsError());
+                                        "Retrieving-Texts"), le.dnsError());
                     }
                 }
             } while (itrResolvers.hasNext() && set.getTexts().isEmpty());
@@ -416,21 +411,25 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
          *
          * @return A set of <code>String</code> identifying the retrieve Service records.
          *
-         * @throws LookupException In case of any unrecoverable error during the lookup process.
-         * @throws ConfigurationException In case of wrong/faulty static and/or runtime
-         * configuration.
+         * @throws LookupException
+         *      In case of any unrecoverable error during the lookup process.
+         * @throws ConfigurationException
+         *      In case of wrong/faulty static and/or runtime configuration.
          */
         public Set<ServiceInstance> serviceInstances(Fqdn browsingDomain, CompoundLabel type, boolean secValidation)
                                         throws LookupException, ConfigurationException
         {
             Map<String, Resolver> resolvers = retrieveResolvers(false);
             Map<String, Resolver> valResolvers = retrieveResolvers(true);
+
             Set<ServiceInstance> instances = new TreeSet<>();
             errorsTrace.get().clear();
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
+
             // retrive instances by subtype, skip the types listing step
             boolean bySubType = type.hasSubType();
-            LookupContext ctx = context(browsingDomain, "", type.prefixString(), type.getType(), Type.PTR, secValidation);
+            LookupContext ctx = DnsUtil.context(browsingDomain, "", type.prefixString(), type.getType(),
+                                                Type.PTR, secValidation);
             String server = null;
             do {
                 server = itrResolvers.next();
@@ -439,56 +438,37 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                 Resolver valResolver = valResolvers.get(server);
                 ctx.setValResolver(valResolver);
                 statusChange(FormattingUtil.server(server));
+
                 try {
                     Set<String> types = new TreeSet<>();
                     if(!bySubType)
-                        types.addAll(filterOut(type, retrieveDnsSdTypes(ctx)));
+                        types.addAll(DnsUtil.filterByType(type, retrieveDnsSdTypes(ctx)));  // service types
                     else    // browsing by subtype
                         types.add(browsingDomain.fqdnWithPrefix(type.prefixString()));
+
                     ctx.setDomainName(browsingDomain);
                     statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
-                            Type.string(ctx.getRrType()),
-                            StatusChangeEvent.castedList(types)));
-                    Set<String> names = retrieveDnsNames(ctx, types);
+                                    Type.string(ctx.getRrType()), StatusChangeEvent.castedList(types)));
+                    Set<String> names = retrieveDnsNames(ctx, types);   // service names
                     ctx.setDomainName(browsingDomain);
                     statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
-                            Type.string(ctx.getRrType()),
-                            StatusChangeEvent.castedList(names)));
-                    instances.addAll(retrieveDnsInstances(ctx, names));
+                                    Type.string(ctx.getRrType()), StatusChangeEvent.castedList(names)));
+                    instances.addAll(retrieveDnsInstances(ctx, names)); // service instances
                 } catch (LookupException le) {
                     if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
                         throw  le;
                     } else if (le.dnsError().equals(StatusCode.SERVER_ERROR)
-                            || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
+                                || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
                         errorsTrace.get().put(
                                 ExceptionsUtil.traceKey(resolver, browsingDomain.fqdnWithPrefix(type.prefixString()),
-                                        "Retrieving-Instances"),
-                                le.dnsError());
+                                        "Retrieving-Instances"), le.dnsError());
                     }
                 }
             } while (itrResolvers.hasNext() && instances.isEmpty());
 
             return instances;
-        }
-
-        /**
-         * Selects the pointer records to browse in order to retrieve the instances.
-         *
-         * @param compType  A composite <code>CompoundLabel</code>
-         * @param ptrs      Retrieved pointer records
-         *
-         * @return  A list of selected pointer records from the <code>CompoundLabel</code>
-         */
-        private Set<String> filterOut(CompoundLabel compType, Set<String> ptrs)
-        {
-            Set<String> filtered = new TreeSet<>();
-            for(String ptr: ptrs)
-                if(ptr.contains(compType.prefixString()))
-                    filtered.add(ptr);
-
-            return filtered;
         }
 
         /**
@@ -503,21 +483,25 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
          *
          * @return A set of <code>String</code> identifying the retrieve Service records.
          *
-         * @throws LookupException        In case of any unrecoverable error during the lookup process.
-         * @throws ConfigurationException In case of wrong/faulty static and/or runtime configuration.
+         * @throws LookupException
+         *      In case of any unrecoverable error during the lookup process.
+         * @throws ConfigurationException
+         *      In case of wrong/faulty static and/or runtime configuration.
          */
         public Set<CertRecord> tlsaRecords(Fqdn browsingDomain, DnsCertPrefix tlsaPrefix,
-                                                    boolean secValidation)
-                                            throws LookupException, ConfigurationException
+                                           boolean secValidation)
+                                throws LookupException, ConfigurationException
         {
             Map<String, Resolver> resolvers = retrieveResolvers(false);
             Map<String, Resolver> valResolvers = retrieveResolvers(true);
+
             Set<CertRecord> tlsaDiscoveryRecords = new TreeSet<>();
             errorsTrace.get().clear();
+
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
             String tlsaFqdn = tlsaPrefix.toString() + Constants.DNS_LABEL_DELIMITER + browsingDomain.fqdn();
             Fqdn browsingDomainWithTLSAPrefix = new Fqdn(tlsaFqdn);
-            LookupContext ctx = context(browsingDomainWithTLSAPrefix, "", "", "", Type.TLSA, secValidation);
+            LookupContext ctx = DnsUtil.context(browsingDomainWithTLSAPrefix, "", "", "", Type.TLSA, secValidation);
             String server;
             do {
                 server = itrResolvers.next();
@@ -526,6 +510,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                 Resolver valResolver = valResolvers.get(server);
                 ctx.setValResolver(valResolver);
                 statusChange(FormattingUtil.server(server));
+
                 try {
                     Record[] records = lookup(ctx);
                     for (Record record : records) {
@@ -537,7 +522,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                     if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
                         throw  le;
                     } else if (le.dnsError().equals(StatusCode.SERVER_ERROR)
-                            || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
+                                || le.dnsError().equals(StatusCode.RESOURCE_INSECURE_ERROR)) {
                         throw le;
                     } else {
                         errorsTrace.get().put(
@@ -555,9 +540,11 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
          * Instantiate and trigger a DNS lookup according to the defined input parameters.
          *
          * @param ctx A <code>LookupContext</code> defining this lookup parameters
+         *
          * @return A set of one or more Resource <code>Record</code>
-         * @throws LookupException In case of unsuccessful DNS lookup; the <code>StatusCode</code>
-         * is returned as part of this error.
+         *
+         * @throws LookupException
+         *      In case of unsuccessful DNS lookup; the <code>StatusCode</code> is returned as part of this error.
          */
         private Record[] lookup(LookupContext ctx) throws LookupException
         {
@@ -576,6 +563,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                 ctx.setLookup(lookup);
                 records = lookup.run();
             }
+
             statusChange(FormattingUtil.query(ctx.getDomainName(), ctx.getPrefix(),
                          Type.string(ctx.getRrType())));
             StatusCode outcome = DnsUtil.checkLookupStatus(lookup);
@@ -599,43 +587,14 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         }
 
         /**
-         * Retrieve the DNS domain label for the browsing domain and specified Service Type.
-         *
-         * @param ctx A <code>LookupContext</code> defining this lookup parameters
-         * @return A <code>String</code> containing the DNS domain label
-         * @throws LookupException In case of unsuccessful DNS lookup; the <code>StatusCode</code>
-         * is returned as part of this error.
-         */
-        private String retrieveDnsLabel(LookupContext ctx) throws LookupException
-        {
-            ctx.setPrefix(ctx.getType() + Constants.NAME);
-            ctx.setRrType(Type.PTR);
-            Record[] records = lookup(ctx);
-            String dnsLabel = null;
-            if (records != null) {
-                for (Record record : records) {
-                    if (record instanceof PTRRecord) {
-                        dnsLabel = PointerRecord.build((PTRRecord) record).getDnsLabel();
-                    }
-                }
-            }
-
-            if (dnsLabel == null) {
-                throw ExceptionsUtil.build(StatusCode.RESOLUTION_NAME_ERROR,
-                        FormattingUtil.unableToRetrieveLabel(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix())),
-                        errorsTrace.get());
-            } else {
-                return dnsLabel;
-            }
-        }
-
-        /**
          * Retrieve the DNS Service's Zones.
          *
          * @param ctx A <code>LookupContext</code> defining this lookup parameters
+         *
          * @return A set of <code>String</code> containing the DNS zones
-         * @throws LookupException In case of unsuccessful DNS lookup; the <code>StatusCode</code>
-         * is returned as part of this error.
+         *
+         * @throws LookupException
+         *      In case of unsuccessful DNS lookup; the <code>StatusCode</code> is returned as part of this error.
          */
         private Set<String> retrieveDnsSdTypes(LookupContext ctx) throws LookupException
         {
@@ -643,7 +602,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
             ctx.setRrType(Type.PTR);
             Record[] records = lookup(ctx);
             RecordsContainer set = new RecordsContainer();
-            parseRecords(records, set, ctx.getDnsLabel(), RrHolderType.ZONES);
+            parseRecords(records, set, RrHolderType.ZONES);
 
             return set.getLabels();
         }
@@ -652,20 +611,22 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
          * Retrieve the DNS Service's Names.
          *
          * @param ctx A <code>LookupContext</code> defining this lookup parameters
+         *
          * @return A set of <code>String</code> containing the DNS service names
-         * @throws LookupException In case of unsuccessful DNS lookup; the <code>StatusCode</code>
-         * is returned as part of this error.
+         *
+         * @throws LookupException
+         *      In case of unsuccessful DNS lookup; the <code>StatusCode</code> is returned as part of this error.
          */
         private Set<String> retrieveDnsNames(LookupContext ctx, Set<String> zones)
                                 throws LookupException
         {
-            ctx.setPrefix(ctx.getDnsLabel() == null?"":ctx.getDnsLabel());
+            ctx.setPrefix("");
             ctx.setRrType(Type.PTR);
             RecordsContainer set = new RecordsContainer();
             for (String zone : zones) {
                 ctx.setDomainName(new Fqdn(zone));
                 Record[] records = lookup(ctx);
-                parseRecords(records, set, ctx.getDnsLabel(), RrHolderType.NAMES);
+                parseRecords(records, set, RrHolderType.NAMES);
             }
 
             return set.getLabels();
@@ -675,9 +636,11 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
          * Retrieve the Service's records.
          *
          * @param ctx A <code>LookupContext</code> defining this lookup parameters
+         *
          * @return A set of <code>String</code> containing the service's records
-         * @throws LookupException In case of unsuccessful DNS lookup; the <code>StatusCode</code>
-         * is returned as part of this error.
+         *
+         * @throws LookupException
+         *      In case of unsuccessful DNS lookup; the <code>StatusCode</code> is returned as part of this error.
          */
         private Set<ServiceRecord> retrieveDnsRecords(LookupContext ctx, Set<String> svcNames)
                                     throws LookupException
@@ -688,7 +651,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
             for (String svcName : svcNames) {
                 ctx.setDomainName(new Fqdn(svcName));
                 Record[] records = lookup(ctx);
-                parseRecords(records, set, ctx.getDnsLabel(), RrHolderType.OTHER);
+                parseRecords(records, set, RrHolderType.OTHER);
             }
 
             return set.getRecords();
@@ -698,9 +661,11 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
          * Retrieve the Service's instances.
          *
          * @param ctx A <code>LookupContext</code> defining this lookup parameters
+         *
          * @return A set of <code>String</code> containing the service's records
-         * @throws LookupException In case of unsuccessful DNS lookup; the <code>StatusCode</code>
-         * is returned as part of this error.
+         *
+         * @throws LookupException
+         *      In case of unsuccessful DNS lookup; the <code>StatusCode</code> is returned as part of this error.
          */
         private Set<ServiceInstance> retrieveDnsInstances(LookupContext ctx, Set<String> svcNames)
                                         throws LookupException
@@ -713,7 +678,6 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                 set.getTexts().clear();
                 aName.add(svcName);
 
-                ctx.setPrefix(ctx.getDnsLabel());
                 Set<ServiceRecord> svcRecords = retrieveDnsRecords(ctx, aName);
                 statusChange(StatusChangeEvent.build(svcName, "", StatusChangeEvent.castedList(svcRecords)));
                 if (svcRecords.isEmpty()) {
@@ -724,7 +688,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                 ctx.setRrType(Type.TXT);
                 ctx.setDomainName(new Fqdn(svcName));
                 Record[] records = lookup(ctx);
-                parseRecords(records, set, ctx.getLabel(), RrHolderType.OTHER);
+                parseRecords(records, set, RrHolderType.OTHER);
                 statusChange(StatusChangeEvent.build(svcName, "", StatusChangeEvent.castedList(set.getTexts())));
                 if (set.getTexts().isEmpty()) {
                     continue;
@@ -742,11 +706,9 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
          *
          * @param records An array of <code>Record</code> retrieve upon a lookup
          * @param set A <code>ResourcesContainer</code>
-         * @param dnsLabel A <code>String</code> containing the extracted DNS Label
          * @param pht A Resource Record Type holder
          */
-        private void parseRecords(Record[] records, final RecordsContainer set,
-                                  String dnsLabel, RrHolderType pht)
+        private void parseRecords(Record[] records, final RecordsContainer set, RrHolderType pht)
         {
             if (records != null) {
                 for (Record record : records) {
@@ -771,46 +733,12 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                         set.getTexts().add(TextRecord.build((TXTRecord) record));
                     } else {
                         errorsTrace.get().put(
-                                ExceptionsUtil.traceKey(record.toString(), dnsLabel,
+                                ExceptionsUtil.traceKey(record.toString(), "",
                                         "Parsing-Service-Records"),
                                 StatusCode.RESOURCE_UNEXPECTED);
                     }
                 }
             }
-        }
-
-        public Set<String> getServiceTypeNamesFromRecords(Record[] records, LookupContext lookupContext)
-                                throws LookupException
-        {
-            Set<String> serviceTypeNames = new HashSet<>();
-            for (Record record : records)
-                serviceTypeNames.add(RDataUtil.getServiceTypeRData(record.rdataToString()));
-
-            return serviceTypeNames;
-        }
-
-        /**
-         * Create a Lookup Context to be passed over the nested calls.
-         *
-         * @param name A browsing domain
-         * @param prefix The prefix label to be used
-         * @param type An <code>int</code> specifying the Resource Record Type
-         * @param sec    <code>true</code> iff DNSSEC validation is needed
-         * @return A <code>LookupContext</code> created accordingly
-         */
-        // TODO RecordsContainer might be handled by the Context
-        private LookupContext context(Fqdn name, String prefix, String label, String type,
-                                      int rrType, boolean sec)
-        {
-            LookupContext ctx = new LookupContext();
-            ctx.setDomainName(name);
-            ctx.setPrefix(prefix);
-            ctx.setLabel(label);
-            ctx.setType(type);
-            ctx.setRrType(rrType);
-            ctx.setSecure(sec);
-
-            return ctx;
         }
 
     }

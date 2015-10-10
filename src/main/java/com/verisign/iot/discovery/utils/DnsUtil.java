@@ -1,6 +1,8 @@
 package com.verisign.iot.discovery.utils;
 
+import com.verisign.iot.discovery.commons.LookupContext;
 import com.verisign.iot.discovery.commons.StatusCode;
+import com.verisign.iot.discovery.domain.CompoundLabel;
 import com.verisign.iot.discovery.domain.Fqdn;
 import com.verisign.iot.discovery.domain.TextRecord;
 import com.verisign.iot.discovery.exceptions.ConfigurationException;
@@ -8,8 +10,11 @@ import com.verisign.iot.discovery.exceptions.LookupException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import org.jitsi.dnssec.validator.ValidatingResolver;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.DClass;
@@ -37,14 +42,18 @@ import org.xbill.DNS.Type;
  */
 public final class DnsUtil
 {
-
+    /** DNSSEC response insecure text string. */
     private static final String INSECURE = "insecure";
+    /** DNSSEC response chain of trust related text string. */
     private static final String CHAIN_OF_TRUST = "chain of trust";
+    /** DNSSEC response no data text string. */
     private static final String NO_DATA = "nodata";
+    /** DNSSEC response missing signature text string. */
     private static final String NO_SIGNATURE = "missing signature";
+    /** DNSSEC response missing DNSSKEY text string. */
     private static final String MISSING_KEY = "missing dnskey rrset";
+    /** DNSSEC response NSEC3 related text string. */
     private static final String NSEC3_NO_DS = "nsec3s proved no ds";
-
 
     /**
      * Instantiate a DNS <code>Resolver</code> by the provided Server. In case of DNSSEC validation
@@ -53,9 +62,11 @@ public final class DnsUtil
      * @param dnsSec <code>true</code> iff DNSSEC is enabled
      * @param trustAnchor Public cryptographic to validate against
      * @param server Server to use as DNS resolver
+     *
      * @return An instance of <code>Resolver</code>
-     * @throws ConfigurationException Exceptional circumstances in which <code>Resolver</code>
-     * cannot be created.
+     *
+     * @throws ConfigurationException
+     *      Exceptional circumstances in which <code>Resolver</code> cannot be created.
      */
     public static Resolver getResolver(boolean dnsSec, String trustAnchor, String server)
                             throws ConfigurationException
@@ -74,9 +85,11 @@ public final class DnsUtil
      *
      * @param dnsSec <code>true</code> iff DNSSEC is enabled
      * @param trustAnchor Public cryptographic to validate against
+     *
      * @return A list of default <code>Resolver</code>
-     * @throws ConfigurationException Exceptional circumstances in which no default
-     * <code>Resolver</code> can be created.
+     *
+     * @throws ConfigurationException
+     *      Exceptional circumstances in which no default <code>Resolver</code> can be created.
      */
     public static Map<String, Resolver> getResolvers(boolean dnsSec, String trustAnchor)
                                             throws ConfigurationException
@@ -103,11 +116,14 @@ public final class DnsUtil
      * @param name A <code>Fqdn</code> representing the validating domain
      * @param resolver A DNS <code>Resovler</code> to be used in this validation
      * @param rType An integer representing the record type
+     *
      * @return <code>true</code> iff the DNSSEC is valid
-     * @throws LookupException Containing the specific <code>StatusCode</code> defining the error
-     * that has been raised.
+     *
+     * @throws LookupException
+     *      Containing the specific <code>StatusCode</code> defining the error that has been raised.
      */
-    public static boolean checkDnsSec(Fqdn name, Resolver resolver, int rType) throws LookupException
+    public static boolean checkDnsSec(Fqdn name, Resolver resolver, int rType)
+                            throws LookupException
     {
         try {
             ValidatingResolver validating = (ValidatingResolver) resolver;
@@ -122,29 +138,32 @@ public final class DnsUtil
                 }
             }
             StatusCode outcome = StatusCode.SUCCESSFUL_OPERATION;
-            if(dnsResponse.getRcode() == Rcode.SERVFAIL) {
-                if(reason.toString().toLowerCase().contains(CHAIN_OF_TRUST) ||
-                        reason.toString().toLowerCase().contains(INSECURE))
+            if (dnsResponse.getRcode() == Rcode.SERVFAIL) {
+                if (reason.toString().toLowerCase().contains(CHAIN_OF_TRUST)
+                        || reason.toString().toLowerCase().contains(INSECURE)) {
                     outcome = StatusCode.RESOURCE_INSECURE_ERROR;
-                else if(reason.toString().toLowerCase().contains(NO_DATA))
+                } else if (reason.toString().toLowerCase().contains(NO_DATA)) {
                     outcome = StatusCode.NETWORK_ERROR;
-                else if(reason.toString().toLowerCase().contains(NO_SIGNATURE) ||
-                        reason.toString().toLowerCase().contains(MISSING_KEY))
+                } else if (reason.toString().toLowerCase().contains(NO_SIGNATURE)
+                        || reason.toString().toLowerCase().contains(MISSING_KEY)) {
                     outcome = StatusCode.RESOLUTION_NAME_ERROR;
-            }else if(dnsResponse.getRcode() == Rcode.NXDOMAIN) {
-                if(reason.toString().toLowerCase().contains(NSEC3_NO_DS))
+                }
+            } else if (dnsResponse.getRcode() == Rcode.NXDOMAIN) {
+                if (reason.toString().toLowerCase().contains(NSEC3_NO_DS)) {
                     outcome = StatusCode.RESOURCE_INSECURE_ERROR;
-                else
+                } else {
                     outcome = StatusCode.RESOLUTION_NAME_ERROR;
-            }else if(dnsResponse.getRcode() == Rcode.NOERROR &&
-                        !dnsResponse.getHeader().getFlag(Flags.AD)) {
+                }
+            } else if (dnsResponse.getRcode() == Rcode.NOERROR
+                    && !dnsResponse.getHeader().getFlag(Flags.AD)) {
                 outcome = StatusCode.RESOURCE_INSECURE_ERROR;
             }
 
-            if(outcome != StatusCode.SUCCESSFUL_OPERATION)
+            if (outcome != StatusCode.SUCCESSFUL_OPERATION) {
                 throw ExceptionsUtil.build(outcome,
-                                           "DNSSEC Validation Failed",
-                                           new LinkedHashMap<String, StatusCode>());
+                        "DNSSEC Validation Failed",
+                        new LinkedHashMap<String, StatusCode>());
+            }
         } catch (IOException e) {
             // it might be a transient error network: retry with next Resolver
             return false;
@@ -157,12 +176,14 @@ public final class DnsUtil
      * Validate the DNS <code>Lookup</code>, catching any transient or blocking issue.
      *
      * @param lookup A <code>Lookup</code> used to pull Resource Records
+     *
      * @return A <code>StatusCode</code> with the check outcome
-     * @throws LookupException Containing the specific <code>StatusCode</code> defining the error
-     * that has been raised.
+     *
+     * @throws LookupException
+     *      Containing the specific <code>StatusCode</code> defining the error that has been raised.
      */
     public static StatusCode checkLookupStatus(Lookup lookup)
-                                throws LookupException
+            throws LookupException
     {
         StatusCode outcome = null;
         if (lookup.getResult() == Lookup.TRY_AGAIN) {
@@ -189,12 +210,14 @@ public final class DnsUtil
      * @param resolver A <code>Resolver</code> to be used for lookup
      * @param rrType The Resource Record <code>Type</code>
      * @param cache The Resource Record <code>Cache</code>
+     *
      * @return An instance of <code>Lookup</code>
-     * @throws LookupException Containing the specific <code>StatusCode</code> defining the error
-     * that has been raised.
+     *
+     * @throws LookupException
+     *      Containing the specific <code>StatusCode</code> defining the error that has been raised.
      */
     public static Lookup instantiateLookup(String domainName, Resolver resolver, int rrType, Cache cache)
-                            throws LookupException
+                    throws LookupException
     {
         Lookup lookup = null;
         try {
@@ -215,6 +238,7 @@ public final class DnsUtil
      * @param dnsSec <code>true</code> iff DNSSEC is enabled
      * @param trustAnchor Public cryptographic to validate against
      * @param server Server to use as DNS resolver
+     *
      * @return <code>null</code> in case the <code>Resolver</code> cannot be instantiated
      */
     private static Resolver instantiateResolver(boolean dnsSec, String trustAnchor, String server)
@@ -232,6 +256,68 @@ public final class DnsUtil
         } catch (IOException e) {
             return null;
         }
+    }
+
+    /**
+     * Extract service names from input pointer records.
+     *
+     * @param records Pointer records having the names in their RData
+     *
+     * @return A list of extracted names
+     */
+    public static Set<String> extractNamesFromRecords(Record[] records)
+    {
+        Set<String> serviceTypeNames = new HashSet<>();
+        for (Record record : records) {
+            serviceTypeNames.add(RDataUtil.getServiceTypeRData(record.rdataToString()));
+        }
+
+        return serviceTypeNames;
+    }
+
+    /**
+     * Selects the pointer records to browse in order to retrieve the instances.
+     *
+     * @param compType A composite <code>CompoundLabel</code>
+     * @param ptrs Retrieved pointer records
+     *
+     * @return A list of selected pointer records from the <code>CompoundLabel</code>
+     */
+    public static Set<String> filterByType(CompoundLabel compType, Set<String> ptrs)
+    {
+        Set<String> filtered = new TreeSet<>();
+        for (String ptr : ptrs) {
+            if (ptr.contains(compType.prefixString())) {
+                filtered.add(ptr);
+            }
+        }
+
+        return filtered;
+    }
+
+    /**
+     * Create a Lookup Context to be passed over the nested calls.
+     *
+     * @param name A browsing domain
+     * @param prefix The prefix label to be used
+     * @param type An <code>int</code> specifying the Resource Record Type
+     * @param sec    <code>true</code> iff DNSSEC validation is needed
+     *
+     * @return A <code>LookupContext</code> created accordingly
+     */
+    // TODO RecordsContainer might be handled by the Context
+    public static LookupContext context(Fqdn name, String prefix, String label, String type,
+                                        int rrType, boolean sec)
+    {
+        LookupContext ctx = new LookupContext();
+        ctx.setDomainName(name);
+        ctx.setPrefix(prefix);
+        ctx.setLabel(label);
+        ctx.setType(type);
+        ctx.setRrType(rrType);
+        ctx.setSecure(sec);
+
+        return ctx;
     }
 
     private DnsUtil()
