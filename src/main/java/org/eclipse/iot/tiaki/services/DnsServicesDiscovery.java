@@ -447,14 +447,14 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
 
                 try {
                     Set<String> types = new TreeSet<>();
-                    if(!bySubType)
+                    ctx.setDomainName(browsingDomain);
+                    if(!bySubType) {
                         types.addAll(DnsUtil.filterByType(type, retrieveDnsSdTypes(ctx)));  // service types
-                    else    // browsing by subtype
+                        statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
+                                    Type.string(ctx.getRrType()), StatusChangeEvent.castedList(types)));
+                    } else    // browsing by subtype
                         types.add(browsingDomain.fqdnWithPrefix(type.prefixString()));
 
-                    ctx.setDomainName(browsingDomain);
-                    statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
-                                    Type.string(ctx.getRrType()), StatusChangeEvent.castedList(types)));
                     Set<String> names = retrieveDnsNames(ctx, types);   // service names
                     ctx.setDomainName(browsingDomain);
                     statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
