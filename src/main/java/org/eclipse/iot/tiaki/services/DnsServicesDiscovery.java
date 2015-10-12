@@ -1,29 +1,3 @@
-<<<<<<< HEAD:src/main/java/com/verisign/iot/discovery/services/DnsServicesDiscovery.java
-package com.verisign.iot.discovery.services;
-
-import com.verisign.iot.discovery.DnsDiscovery;
-import com.verisign.iot.discovery.commons.Configurable;
-import com.verisign.iot.discovery.commons.Constants;
-import com.verisign.iot.discovery.commons.LookupContext;
-import com.verisign.iot.discovery.commons.StatusChangeEvent;
-import com.verisign.iot.discovery.commons.StatusCode;
-import com.verisign.iot.discovery.domain.CertRecord;
-import com.verisign.iot.discovery.domain.CompoundLabel;
-import com.verisign.iot.discovery.domain.DnsCertPrefix;
-import com.verisign.iot.discovery.domain.Fqdn;
-import com.verisign.iot.discovery.domain.PointerRecord;
-import com.verisign.iot.discovery.domain.RecordsContainer;
-import com.verisign.iot.discovery.domain.ServiceInstance;
-import com.verisign.iot.discovery.domain.ServiceRecord;
-import com.verisign.iot.discovery.domain.TextRecord;
-import com.verisign.iot.discovery.exceptions.ConfigurationException;
-import com.verisign.iot.discovery.exceptions.LookupException;
-import com.verisign.iot.discovery.utils.DnsUtil;
-import com.verisign.iot.discovery.utils.ExceptionsUtil;
-import com.verisign.iot.discovery.utils.FormattingUtil;
-import com.verisign.iot.discovery.utils.ValidatorUtil;
-import java.net.InetAddress;
-=======
 /*
  * Copyright (c) 2015, Verisign, Inc.
  * All rights reserved. This program and the accompanying materials
@@ -35,6 +9,13 @@ import java.net.InetAddress;
 
 package org.eclipse.iot.tiaki.services;
 
+import java.net.InetAddress;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import org.eclipse.iot.tiaki.DnsDiscovery;
 import org.eclipse.iot.tiaki.commons.Configurable;
 import org.eclipse.iot.tiaki.commons.Constants;
@@ -42,29 +23,20 @@ import org.eclipse.iot.tiaki.commons.LookupContext;
 import org.eclipse.iot.tiaki.commons.StatusChangeEvent;
 import org.eclipse.iot.tiaki.commons.StatusCode;
 import org.eclipse.iot.tiaki.domain.CertRecord;
+import org.eclipse.iot.tiaki.domain.CompoundLabel;
+import org.eclipse.iot.tiaki.domain.DnsCertPrefix;
 import org.eclipse.iot.tiaki.domain.Fqdn;
 import org.eclipse.iot.tiaki.domain.PointerRecord;
 import org.eclipse.iot.tiaki.domain.RecordsContainer;
 import org.eclipse.iot.tiaki.domain.ServiceInstance;
 import org.eclipse.iot.tiaki.domain.ServiceRecord;
-import org.eclipse.iot.tiaki.domain.TLSAPrefix;
 import org.eclipse.iot.tiaki.domain.TextRecord;
 import org.eclipse.iot.tiaki.exceptions.ConfigurationException;
 import org.eclipse.iot.tiaki.exceptions.LookupException;
 import org.eclipse.iot.tiaki.utils.DnsUtil;
 import org.eclipse.iot.tiaki.utils.ExceptionsUtil;
 import org.eclipse.iot.tiaki.utils.FormattingUtil;
-import org.eclipse.iot.tiaki.utils.RDataUtil;
 import org.eclipse.iot.tiaki.utils.ValidatorUtil;
-import java.util.HashSet;
->>>>>>> upstream/master:src/main/java/org/eclipse/iot/tiaki/services/DnsServicesDiscovery.java
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.Lookup;

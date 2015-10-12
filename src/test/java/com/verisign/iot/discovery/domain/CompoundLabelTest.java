@@ -1,6 +1,7 @@
 
 package com.verisign.iot.discovery.domain;
 
+import org.eclipse.iot.tiaki.domain.CompoundLabel;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

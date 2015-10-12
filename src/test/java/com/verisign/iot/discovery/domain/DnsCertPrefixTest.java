@@ -1,5 +1,6 @@
 package com.verisign.iot.discovery.domain;
 
+import org.eclipse.iot.tiaki.domain.DnsCertPrefix;
 import org.junit.Assert;
 import org.junit.Test;
 

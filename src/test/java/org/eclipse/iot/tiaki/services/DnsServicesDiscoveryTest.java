@@ -9,28 +9,18 @@
 
 package org.eclipse.iot.tiaki.services;
 
-<<<<<<< HEAD:src/test/java/com/verisign/iot/discovery/services/DnsServicesDiscoveryTest.java
-import com.verisign.iot.discovery.commons.Constants;
-import com.verisign.iot.discovery.domain.CompoundLabel;
-import com.verisign.iot.discovery.domain.Fqdn;
-import com.verisign.iot.discovery.domain.ServiceInstance;
-import com.verisign.iot.discovery.domain.TextRecord;
-import com.verisign.iot.discovery.exceptions.ConfigurationException;
-import com.verisign.iot.discovery.exceptions.LookupException;
-=======
-import org.eclipse.iot.tiaki.commons.Constants;
-import org.eclipse.iot.tiaki.domain.Fqdn;
-import org.eclipse.iot.tiaki.domain.ServiceInstance;
-import org.eclipse.iot.tiaki.domain.TextRecord;
-import org.eclipse.iot.tiaki.exceptions.ConfigurationException;
-import org.eclipse.iot.tiaki.exceptions.LookupException;
->>>>>>> upstream/master:src/test/java/org/eclipse/iot/tiaki/services/DnsServicesDiscoveryTest.java
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
-
+import org.eclipse.iot.tiaki.commons.Constants;
+import org.eclipse.iot.tiaki.domain.CompoundLabel;
+import org.eclipse.iot.tiaki.domain.Fqdn;
+import org.eclipse.iot.tiaki.domain.ServiceInstance;
+import org.eclipse.iot.tiaki.domain.TextRecord;
+import org.eclipse.iot.tiaki.exceptions.ConfigurationException;
+import org.eclipse.iot.tiaki.exceptions.LookupException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

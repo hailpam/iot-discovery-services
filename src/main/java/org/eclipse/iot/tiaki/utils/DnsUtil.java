@@ -7,35 +7,23 @@
  *
  */
 
-<<<<<<< HEAD:src/main/java/com/verisign/iot/discovery/utils/DnsUtil.java
-import com.verisign.iot.discovery.commons.LookupContext;
-import com.verisign.iot.discovery.commons.StatusCode;
-import com.verisign.iot.discovery.domain.CompoundLabel;
-import com.verisign.iot.discovery.domain.Fqdn;
-import com.verisign.iot.discovery.domain.TextRecord;
-import com.verisign.iot.discovery.exceptions.ConfigurationException;
-import com.verisign.iot.discovery.exceptions.LookupException;
-=======
 package org.eclipse.iot.tiaki.utils;
 
-import org.eclipse.iot.tiaki.commons.StatusCode;
-import org.eclipse.iot.tiaki.domain.Fqdn;
-import org.eclipse.iot.tiaki.domain.TextRecord;
-import org.eclipse.iot.tiaki.exceptions.ConfigurationException;
-import org.eclipse.iot.tiaki.exceptions.LookupException;
->>>>>>> upstream/master:src/main/java/org/eclipse/iot/tiaki/utils/DnsUtil.java
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-<<<<<<< HEAD:src/main/java/com/verisign/iot/discovery/utils/DnsUtil.java
 import java.util.Set;
 import java.util.TreeSet;
-=======
-
->>>>>>> upstream/master:src/main/java/org/eclipse/iot/tiaki/utils/DnsUtil.java
+import org.eclipse.iot.tiaki.commons.LookupContext;
+import org.eclipse.iot.tiaki.commons.StatusCode;
+import org.eclipse.iot.tiaki.domain.CompoundLabel;
+import org.eclipse.iot.tiaki.domain.Fqdn;
+import org.eclipse.iot.tiaki.domain.TextRecord;
+import org.eclipse.iot.tiaki.exceptions.ConfigurationException;
+import org.eclipse.iot.tiaki.exceptions.LookupException;
 import org.jitsi.dnssec.validator.ValidatingResolver;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.DClass;
@@ -316,9 +304,11 @@ public final class DnsUtil
     /**
      * Create a Lookup Context to be passed over the nested calls.
      *
-     * @param name A browsing domain
+     * @param name   A browsing domain
      * @param prefix The prefix label to be used
-     * @param type An <code>int</code> specifying the Resource Record Type
+     * @param label  Specific DNS label
+     * @param type   Specific DNS-SD type
+     * @param rrType DNS Resource Record Type
      * @param sec    <code>true</code> iff DNSSEC validation is needed
      *
      * @return A <code>LookupContext</code> created accordingly

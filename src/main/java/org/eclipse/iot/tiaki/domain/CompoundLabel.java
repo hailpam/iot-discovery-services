@@ -1,8 +1,8 @@
 
-package com.verisign.iot.discovery.domain;
+package org.eclipse.iot.tiaki.domain;
 
-import com.verisign.iot.discovery.commons.Constants;
 import java.util.Objects;
+import org.eclipse.iot.tiaki.commons.Constants;
 
 /**
  * Class to capture a compound label, i.e. built up by 'type', 'subtype' and 'protocol'. The only
@@ -58,7 +58,7 @@ public class CompoundLabel
         parts[0] = "";
         parts[1] = "";
         parts[2] = "";
-        
+
         if(isCompound(label) && label.length() > 1) {
             String[] splitted = label.split(SEPARATOR);
             if(splitted[0].isEmpty())

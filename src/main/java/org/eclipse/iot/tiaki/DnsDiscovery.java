@@ -9,14 +9,15 @@
 
 package org.eclipse.iot.tiaki;
 
+import java.util.Set;
+import org.eclipse.iot.tiaki.domain.CertRecord;
+import org.eclipse.iot.tiaki.domain.CompoundLabel;
+import org.eclipse.iot.tiaki.domain.DnsCertPrefix;
 import org.eclipse.iot.tiaki.domain.Fqdn;
 import org.eclipse.iot.tiaki.domain.ServiceInstance;
-import org.eclipse.iot.tiaki.domain.CertRecord;
-import org.eclipse.iot.tiaki.domain.TLSAPrefix;
 import org.eclipse.iot.tiaki.domain.TextRecord;
 import org.eclipse.iot.tiaki.exceptions.ConfigurationException;
 import org.eclipse.iot.tiaki.exceptions.LookupException;
-import java.util.Set;
 
 /**
  * Define a set of facilities to discover Services registered on DNS. This interface can be

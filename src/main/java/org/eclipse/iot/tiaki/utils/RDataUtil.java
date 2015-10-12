@@ -13,7 +13,6 @@ import org.eclipse.iot.tiaki.commons.Constants;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.TextParseException;
 
-<<<<<<< HEAD:src/main/java/com/verisign/iot/discovery/utils/RDataUtil.java
 /**
  * DNS RData Util. It deals with any specific text extraction or validation policy of RData.
  *
@@ -22,9 +21,6 @@ import org.xbill.DNS.TextParseException;
  * @since Mar 30, 2015
  */
 public final class RDataUtil
-=======
-public class RDataUtil
->>>>>>> upstream/master:src/main/java/org/eclipse/iot/tiaki/utils/RDataUtil.java
 {
 
 	/**
