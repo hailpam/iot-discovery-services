@@ -6,7 +6,12 @@ apply plugin: 'eclipse'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
-version = '1.0'
+if (hasProperty("teamcity")) {
+    version = "1.0." + teamcity["build.number"]
+    jar.baseName = "iot-discovery-services"
+} else {
+    version = "1.0"
+}
 
 repositories {
     mavenLocal()

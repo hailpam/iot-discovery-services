@@ -28,17 +28,17 @@ Using the iot-discovery-services library, the device then looks up services of t
 Here is a simple example which retrieves the "mqtt" service instances from "7pqg77uhvroq.1.iotverisign.com". Any DNS resolver can be used - however, to be considered secure, the Discovery process must rely on a DNSSEC validating resolver, which is the case for Verisign's 198.41.1.1. Also, the domain name must be dnssec-enabled.
 
 ```
-package com.verisign.iot.discovery;
+package org.eclipse.iot.tiaki;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Set;
 
-import com.verisign.iot.discovery.domain.Fqdn;
-import com.verisign.iot.discovery.domain.ServiceInstance;
-import com.verisign.iot.discovery.exceptions.ConfigurationException;
-import com.verisign.iot.discovery.exceptions.LookupException;
-import com.verisign.iot.discovery.services.DnsServicesDiscovery;
+import org.eclipse.iot.tiaki.domain.Fqdn;
+import org.eclipse.iot.tiaki.domain.ServiceInstance;
+import org.eclipse.iot.tiaki.exceptions.ConfigurationException;
+import org.eclipse.iot.tiaki.exceptions.LookupException;
+import org.eclipse.iot.tiaki.services.DnsServicesDiscovery;
 
 public class Discoverer {
 
