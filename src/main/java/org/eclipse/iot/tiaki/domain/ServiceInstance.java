@@ -10,7 +10,6 @@
 
 package org.eclipse.iot.tiaki.domain;
 
-import org.eclipse.iot.tiaki.commons.Constants;
 import java.util.Objects;
 
 /**
@@ -42,8 +41,8 @@ public final class ServiceInstance extends DiscoveryRecord
 	public ServiceInstance ( String serviceType, ServiceRecord serviceRecord, TextRecord textRecord )
     {
 		super( String.format( "%s %s %d %d %d %d %s", serviceType, serviceRecord.getHost(), serviceRecord.getPort(),
-				serviceRecord.getPriority(), serviceRecord.getWeight(), Constants.RECORD_DEFAULT_TTL, textRecord.getRData() ),
-				Constants.RECORD_DEFAULT_TTL );
+				serviceRecord.getPriority(), serviceRecord.getWeight(), serviceRecord.getTtl(), textRecord.getRData() ),
+				serviceRecord.getTtl() );
 		this.serviceType = serviceType;
 		this.serviceRecord = serviceRecord;
 		this.textRecord = textRecord;
