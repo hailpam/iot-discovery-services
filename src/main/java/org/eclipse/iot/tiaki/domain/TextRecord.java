@@ -9,6 +9,7 @@
 
 package org.eclipse.iot.tiaki.domain;
 
+import java.util.Set;
 import org.xbill.DNS.TXTRecord;
 
 /**
@@ -18,6 +19,26 @@ import org.xbill.DNS.TXTRecord;
   */
 public final class TextRecord extends DiscoveryRecord
 {
+
+    /**
+     * Takes in input a <code>Set</code> of strings and produces a value corresponding to the max TTL
+     *
+     * @param txtsRec  A <code>Set</code> of strings
+     *
+     * @return  A properly built compound <code>TextRecord</code>
+     */
+    public final static TextRecord build( Set<TextRecord> txtsRec )
+    {
+        StringBuilder flattened = new StringBuilder();
+        long max = Long.MIN_VALUE;
+        for(TextRecord txt: txtsRec) {
+            flattened.append(txt.getRData());
+            if(txt.getTtl() > max)
+                max = txt.getTtl();
+        }
+
+        return new TextRecord(flattened.toString(), max);
+    }
 
 	/**
 	 * Static builder. It wraps out a {@link TXTRecord} by extracting relevant data.

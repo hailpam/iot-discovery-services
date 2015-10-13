@@ -1,29 +1,27 @@
-/*
- * Copyright (c) 2015, Verisign, Inc.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- */
-
 package org.eclipse.iot.tiaki.domain;
 
 import org.eclipse.iot.tiaki.commons.Constants;
 import org.eclipse.iot.tiaki.utils.ValidatorUtil;
 
-public class TLSAPrefix
+/**
+ * DNS PKIX Certificate compound prefix.
+ *
+ * @author tjmurphy
+ * @version 1.0
+ * @since Mar 30, 2015
+ */
+public class DnsCertPrefix
 {
 
     private int port;
     private String protocol;
 
-    public TLSAPrefix()
+    public DnsCertPrefix()
     {
         setDefaultValues();
     }
 
-    public TLSAPrefix(String initString)
+    public DnsCertPrefix(String initString)
     {
         parseInitString(initString);
     }

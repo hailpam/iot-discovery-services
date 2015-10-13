@@ -13,21 +13,30 @@ import org.eclipse.iot.tiaki.commons.Constants;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.TextParseException;
 
-public class RDataUtil
+/**
+ * DNS RData Util. It deals with any specific text extraction or validation policy of RData.
+ *
+ * @author tjmurphy
+ * @version 1.0
+ * @since Mar 30, 2015
+ */
+public final class RDataUtil
 {
 
 	/**
-	 * Extract the service-type dns-label prefix from a PTR record's rdata. If label is not found, return <code>null</code>.
-	 * @param rData
-	 * @return dnsLabel
-	 */
+     * Extracts a service type label (pointing to a DNS-SD name) from the pointer RData.
+     *
+     * @param rData     Pointer record RData
+     *
+     * @return  A <code>String</code> containing the service type label.
+     */
 	public static String getDnsLabelFromRData(String rData)
     {
-		if(rData == null || rData.trim().isEmpty()){
+		if(rData == null || rData.trim().isEmpty()) {
 			throw new IllegalArgumentException( "rData cannot be null, empty, or blank" );
 		}
 
-		if(rData.contains( Constants.LABEL )){
+		if(rData.contains( Constants.LABEL )) {
 			return rData.substring(0, rData.indexOf(Constants.LABEL));
 		}
 
@@ -38,31 +47,62 @@ public class RDataUtil
 			throw new IllegalArgumentException( "rData must be valid domain name" );
 		}
 
-		if(nameInRData.labels() < 2){
+		if(nameInRData.labels() < 2) {
 			throw new IllegalArgumentException( "rData does not have enough labels to return dns label for a service type" );
 		}
 
 		String transportProtocolLabel = nameInRData.getLabelString( 1 );
-		if(transportProtocolLabel.equals( Constants.TCP ) || transportProtocolLabel.equals( Constants.UDP )){
+		if(transportProtocolLabel.equals( Constants.TCP ) || transportProtocolLabel.equals( Constants.UDP )) {
 			return nameInRData.getLabelString( 0 ) + Constants.DNS_LABEL_DELIMITER + transportProtocolLabel;
 		}
 
-		throw new IllegalArgumentException( "could not extract dns label from rData" );
+		throw new IllegalArgumentException( "Could not extract DNS Label from rData" );
 	}
 
+    /**
+     * Extracts a service type name (pointed by a DNS-SD label) from the pointer RData.
+     *
+     * @param rData     Pointer record RData
+     *
+     * @return  A <code>String</code> containing the service type name.
+     */
 	public static String getServiceTypeNameFromRData(String rData)
     {
-		if(rData == null || rData.trim().isEmpty()){
+		if(rData == null || rData.trim().isEmpty()) {
 			throw new IllegalArgumentException( "rData cannot be null, empty, or blank" );
 		}
 
-		if(rData.contains( Constants.NAME )){
+		if(rData.contains( Constants.NAME )) {
 			String serviceTypeName = rData.substring(0, rData.indexOf(Constants.NAME)).trim();
-			if(!serviceTypeName.isEmpty()){
+			if(!serviceTypeName.isEmpty()) {
 				return serviceTypeName;
 			}
 		}
-		throw new IllegalArgumentException( "could not extract service type name from rData" );
+		throw new IllegalArgumentException( "Could not extract Service Type name from rData" );
 	}
+
+     /**
+     * Extracts a service type name (pointed by a DNS-SD label) from the pointer RData.
+     *
+     * @param rData     Pointer record RData
+     *
+     * @return  A <code>String</code> containing the service type name.
+     */
+	public static String getServiceTypeRData(String rData)
+    {
+		if(rData == null || rData.trim().isEmpty()) {
+			throw new IllegalArgumentException( "rData cannot be null, empty, or blank" );
+		}
+		String[] splitted = rData.split("\\.");
+        if(splitted.length < 3)
+            throw new IllegalArgumentException( "Invalid RData for a service type PTR: " +rData );
+
+        return splitted[0].replaceFirst("_", "");
+	}
+
+    private RDataUtil()
+    {
+        throw new AssertionError(String.format("No instances of %s for you!", this.getClass().getCanonicalName()));
+    }
 
 }

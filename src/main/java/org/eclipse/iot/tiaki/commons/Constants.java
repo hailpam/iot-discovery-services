@@ -59,6 +59,11 @@ public final class Constants
 	 */
 	public static final String UDP = "_udp";
 
+    /**
+     * Subtype DNS-SD label to specify any subtype-based service lookup.
+     */
+    public static final String SUBTYPE = "_sub";
+
 	/**
 	 * Default protocol for TLSA record prefix
 	 */

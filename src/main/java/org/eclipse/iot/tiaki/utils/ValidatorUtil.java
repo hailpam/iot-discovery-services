@@ -67,11 +67,11 @@ public final class ValidatorUtil
 		else if ( name.fqdn() == null || name.fqdn().isEmpty() ) {
 			throw new IllegalArgumentException( "null/blank name" );
 		}
-		else if ( !name.fqdn().matches( FQDN_PATTERN ) || name.fqdn().length() > FQDN_LENGTH ) {
+		else if ( !isDnsSdDomainName(name.fqdn()) && (!name.fqdn().matches( FQDN_PATTERN )
+                    || name.fqdn().length() > FQDN_LENGTH )) {
 			throw new IllegalArgumentException( String.format( "invalid FQDN [%s]", name ) );
 		}
 	}
-
 
 	/**
 	 * Validate the Domain Name in Input.
@@ -86,7 +86,8 @@ public final class ValidatorUtil
 		if ( name == null || name.isEmpty() ) {
 			throw new IllegalArgumentException( "null/blank name" );
 		}
-		else if ( !name.matches( FQDN_PATTERN ) || name.length() > FQDN_LENGTH ) {
+		else if ( !isDnsSdDomainName(name) && (!name.matches(FQDN_PATTERN )
+                    || name.length() > FQDN_LENGTH) ) {
 			throw new IllegalArgumentException( String.format( "invalid FQDN [%s]", name ) );
 		}
 	}

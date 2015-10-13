@@ -37,8 +37,6 @@ public final class LookupContext implements Serializable
 	private String type;
 	/** A type to be added during the lookup. */
 	private String prefix;
-	/** A DNS label extracted at lookup time. */
-	private String dnsLabel;
 	/** Indicate whether DNSSEC validation has to be carried out. */
 	private boolean secure;
 	/** Indicate the Resource Record type. */
@@ -66,7 +64,7 @@ public final class LookupContext implements Serializable
     {
 		this.valResolver = resolver;
 	}
-    
+
 	public Lookup getLookup ()
     {
 		return this.lookup;
@@ -135,16 +133,6 @@ public final class LookupContext implements Serializable
 	public void setRrType ( int rrType )
     {
 		this.rrType = rrType;
-	}
-
-	public String getDnsLabel ()
-    {
-		return this.dnsLabel;
-	}
-
-	public void setDnsLabel ( String dnsLabel )
-    {
-		this.dnsLabel = dnsLabel;
 	}
 
 }

@@ -47,7 +47,6 @@ public final class ServiceRecord extends DiscoveryRecord
      */
     public static ServiceRecord build(SRVRecord srvRecord)
     {
-
         return new ServiceRecord(srvRecord.getTarget().toString(), srvRecord.getPort(), srvRecord.getPriority(),
                 srvRecord.getWeight(), srvRecord.getTTL());
     }
@@ -152,6 +151,10 @@ public final class ServiceRecord extends DiscoveryRecord
                 return 1;
             } else if (this.port < real.port) {
                 return -1;
+            } else if (this.ttl < real.ttl) {
+                return -1;
+            } else if (this.ttl > real.ttl) {
+                return 1;
             }
         } else {
             return this.compareTo(other);

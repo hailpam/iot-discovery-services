@@ -9,15 +9,15 @@
 
 package org.eclipse.iot.tiaki;
 
+import java.util.Set;
+import org.eclipse.iot.tiaki.domain.CertRecord;
+import org.eclipse.iot.tiaki.domain.CompoundLabel;
+import org.eclipse.iot.tiaki.domain.DnsCertPrefix;
 import org.eclipse.iot.tiaki.domain.Fqdn;
 import org.eclipse.iot.tiaki.domain.ServiceInstance;
-import org.eclipse.iot.tiaki.domain.CertRecord;
-import org.eclipse.iot.tiaki.domain.TLSAPrefix;
 import org.eclipse.iot.tiaki.domain.TextRecord;
 import org.eclipse.iot.tiaki.exceptions.ConfigurationException;
 import org.eclipse.iot.tiaki.exceptions.LookupException;
-
-import java.util.Set;
 
 /**
  * Define a set of facilities to discover Services registered on DNS. This interface can be
@@ -46,7 +46,7 @@ public interface DnsDiscovery extends DnsSecChecker
 	 * List the Service Instances under the provided domain, of the defined <i>type</i>.
 	 *
 	 * @param browsingDomain A <code>Fqdn</code> referring the browsing domain
-	 * @param type           A <code>String</code> identifying the Service Type
+	 * @param type           A compound data structure identifying the Service Type
      * @param secValidation  <code>true</code> iff DNSSEC trust chain has to be validated
 	 *
      * @return A set of <code>ServiceInstance</code> objects
@@ -54,7 +54,7 @@ public interface DnsDiscovery extends DnsSecChecker
 	 * @throws LookupException        In case of any unrecoverable error during the lookup process.
 	 * @throws ConfigurationException In case of wrong/faulty static and/or runtime configuration.
 	 */
-	Set<ServiceInstance> listServiceInstances ( Fqdn browsingDomain, String type, boolean secValidation )
+	Set<ServiceInstance> listServiceInstances ( Fqdn browsingDomain, CompoundLabel type, boolean secValidation )
                             throws LookupException, ConfigurationException;
 
 	/**
@@ -86,7 +86,7 @@ public interface DnsDiscovery extends DnsSecChecker
      *
      * @see <a href="https://tools.ietf.org/html/rfc6698">DNS-Based Authentication of Named Entities (DANE)</a>
 	 */
-	Set<CertRecord> listTLSARecords ( Fqdn browsingDomain, TLSAPrefix tlsaPrefix,
+	Set<CertRecord> listTLSARecords ( Fqdn browsingDomain, DnsCertPrefix tlsaPrefix,
                                                boolean secValidation )
                                 throws LookupException, ConfigurationException;
 }

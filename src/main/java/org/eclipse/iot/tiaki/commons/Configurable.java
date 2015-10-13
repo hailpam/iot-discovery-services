@@ -13,13 +13,19 @@ import org.eclipse.iot.tiaki.exceptions.ConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import org.xbill.DNS.ResolverConfig;
 
 /**
- * An abstract configurable entity that can be introspected: it extends {@link Observable} and in
- * case of verbosity it is able to push its observer {@link Observer}.
+ * An abstract configurable entity that can be introspected: it makes use of an {@link Observable}
+ * helper class that can push notification to its observers {@link Observer} in case of verbose setup.
+ *
+ * Configuration steps are not Thread-safe. 
  *
  */
 public abstract class Configurable
@@ -28,7 +34,7 @@ public abstract class Configurable
     /**
      * DNS Server to be addressed.
      */
-    protected InetAddress dnsServer;
+    protected List<InetAddress> dnsServers;
     /**
      * Secured DNS Domain to be used.
      */
@@ -64,18 +70,21 @@ public abstract class Configurable
         this.introspected = false;
         this.checked = false;
         this.notifier = this.new Notifier();
+        this.dnsServers = new ArrayList<>();
     }
 
     /**
-     * Configure the target Resolution Server.
+     * Configure the target Resolution Server. Multiple calls set multiple target
+     * Resolution Servers.
      *
      * @param host Server's address
      * @return This instance to further configure
      */
     public final Configurable dnsServer(InetAddress host)
     {
-        this.dnsServer = host;
+        this.dnsServers.add(host);
         this.checked = false;
+
         return this;
     }
 
@@ -89,6 +98,7 @@ public abstract class Configurable
     {
         this.dnsSecDomain = domain;
         this.checked = false;
+
         return this;
     }
 
@@ -102,6 +112,7 @@ public abstract class Configurable
     {
         this.trustAnchorDefault = anchor;
         this.checked = false;
+
         return this;
     }
 
@@ -115,6 +126,7 @@ public abstract class Configurable
     {
         this.trustAnchorFile = anchorContainer;
         this.checked = false;
+
         return this;
     }
 
@@ -129,6 +141,7 @@ public abstract class Configurable
     {
         this.introspected = isIt;
         this.checked = false;
+
         return this;
     }
 
@@ -144,6 +157,7 @@ public abstract class Configurable
             this.notifier.addObserver(handler);
             this.checked = false;
         }
+
         return this;
     }
 
@@ -151,13 +165,25 @@ public abstract class Configurable
      * To check the actual configuration.
      *
      * @param reloadConfig  <code>true</code> iff the configuration has to be reloaded
+     *
      * @throws ConfigurationException In case this instance has not been configured properly
      */
-    public synchronized void checkConfiguration(boolean reloadConfig) throws ConfigurationException
+    public void checkConfiguration(boolean reloadConfig) throws ConfigurationException
     {
 
         if (!reloadConfig && this.checked) {
             return;
+        }
+
+        if(this.dnsServers.isEmpty()) {
+            String[] resolvers = ResolverConfig.getCurrentConfig().servers();
+            for(String resolver: resolvers) {
+                try {
+                    this.dnsServers.add(InetAddress.getByName(resolver));
+                } catch(UnknownHostException uhe) { /* acceptable, go ahead */ }
+            }
+            if(this.dnsServers.isEmpty())
+                throw new ConfigurationException("Unable to retrieve default DNS resolvers");
         }
 
         if (this.trustAnchorFile != null) {
@@ -231,7 +257,8 @@ public abstract class Configurable
     {
 
         @Override
-        public final void notifyObservers() {
+        public final void notifyObservers()
+        {
             setChanged();
             if (Configurable.this.introspected) {
                 super.notifyObservers();
@@ -239,7 +266,8 @@ public abstract class Configurable
         }
 
         @Override
-        public final void notifyObservers(Object arg) {
+        public final void notifyObservers(Object arg)
+        {
             setChanged();
             if (Configurable.this.introspected) {
                 super.notifyObservers(arg);

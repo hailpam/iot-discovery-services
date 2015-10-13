@@ -45,7 +45,28 @@ public class CertRecord extends DiscoveryRecord
 		throw new UnsupportedOperationException( "Not supported by this record type" );
 	}
 
+    /**
+     * Retrieve the Certificate Usage.
+     *
+     * @return  An <code>int</code> representing this TLSA usage
+     */
+    public int certUsage() { return tlsaRecord.getCertificateUsage(); }
 
+    /**
+     * Retrieve the Certificate Matching Type.
+     *
+     * @return  An <code>int</code> representing this TLSA matching type
+     */
+    public int certMatchingType() { return tlsaRecord.getMatchingType(); }
+
+    /**
+     * Retrieve the Certificate Selector.
+     *
+     * @return  An <code>int</code> representing this TLSA selector
+     */
+    public int certSelector() { return tlsaRecord.getSelector(); }
+
+    
 	@Override
 	public String toDisplay ()
     {
