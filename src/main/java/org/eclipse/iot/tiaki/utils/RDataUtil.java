@@ -100,6 +100,8 @@ public final class RDataUtil
         return splitted[0].replaceFirst("_", "");
 	}
 
+
+
     private RDataUtil()
     {
         throw new AssertionError(String.format("No instances of %s for you!", this.getClass().getCanonicalName()));

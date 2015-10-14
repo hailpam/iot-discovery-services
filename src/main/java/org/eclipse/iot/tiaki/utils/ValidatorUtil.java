@@ -9,6 +9,7 @@
 
 package org.eclipse.iot.tiaki.utils;
 
+import org.eclipse.iot.tiaki.domain.CompoundLabel;
 import org.eclipse.iot.tiaki.domain.Fqdn;
 
 /**
@@ -27,6 +28,7 @@ public final class ValidatorUtil
 	 * Check the input expression.
 	 *
 	 * @param what A <code>boolean</code> expression to be checked
+     * 
 	 * @throws IllegalArgumentException In case the argument cannot be validated
 	 */
 	public static void check ( boolean what ) throws IllegalArgumentException
@@ -41,12 +43,27 @@ public final class ValidatorUtil
 	 * Validate the Label in Input.
 	 *
 	 * @param label A <code>String</code> containing a Label
+     *
 	 * @throws IllegalArgumentException In case the argument cannot be validated
 	 */
 	public static void isValidLabel ( String label ) throws IllegalArgumentException
     {
 		if ( label == null || label.isEmpty() ) {
 			throw new IllegalArgumentException( "null/blank label" );
+		}
+	}
+
+    /**
+	 * Validate the Label in Input.
+	 *
+	 * @param type A <code>CompoundLabel</code> containing a service type specification
+     *
+	 * @throws IllegalArgumentException In case the argument cannot be validated
+	 */
+	public static void isValidLabel ( CompoundLabel type ) throws IllegalArgumentException
+    {
+		if ( type == null || type.getType().isEmpty() ) {
+			throw new IllegalArgumentException( "null or malformed label: type is mandatory" );
 		}
 	}
 

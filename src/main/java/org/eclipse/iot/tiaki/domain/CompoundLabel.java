@@ -82,9 +82,24 @@ public class CompoundLabel
             throw new IllegalArgumentException("Input label should respect the format: '<label[<:sublabel:proto>|<:proto>]>'");
     }
 
+     /**
+     * Splits up a label into its components. The label is supposed to follow the above specified
+     * pattern: '<code>'label[:sublabel:proto>|:proto]'</code>'.
+     *
+     * @param label A <code>String</code> containing the label formatted like: '<code>'label[:sublabel:proto>|:proto]'</code>'
+     *
+     * @return  A new instance of <code>CompoundLabel</code> built up accordingly
+     */
+    public CompoundLabel buildByLabel(String label)
+    {
+        String[] parts = labelComponents(label);
+
+        return new CompoundLabel(parts[0], parts[1], parts[2]);
+    }
+
     public CompoundLabel(String type) { this(type, ""); }
 
-    public CompoundLabel(String type, String subType) { this(type, subType, Constants.TCP); }
+    public CompoundLabel(String type, String subType) { this(type, subType, ""); }
 
     public CompoundLabel(String type, String subType, String proto) { this.type = type; this.subType = subType; this.proto = proto; }
 
@@ -102,6 +117,18 @@ public class CompoundLabel
      */
     public boolean hasSubType() { return !(subType == null || subType.isEmpty()); }
 
+    /**
+     * Check the protocol presence.
+     *
+     * @return  <code>true</code> iff any protocol is specified in the initial label
+     */
+    public boolean hasProtocol() { return !(proto == null || proto.isEmpty()); }
+
+    /**
+     * Builds up a prefix string by the compound label setup.
+     *
+     * @return  A <code>String</code> containing the built prefix
+     */
     public String prefixString()
     {
         if(type.isEmpty())
@@ -124,7 +151,39 @@ public class CompoundLabel
         prefix.append((proto.contains("_")?proto.subSequence(1, proto.length()):proto));
         prefix.append(Constants.DNS_LABEL_DELIMITER);
 
-        return prefix.toString();
+        return prefix.toString().toLowerCase();
+    }
+
+    /**
+     * Builds up a prefix string by the compound label setup.
+     *
+     * @param protocol  The protocol to be used in building up the prefix
+     *
+     * @return  A <code>String</code> containing the built prefix
+     */
+    public String prefixString(String protocol)
+    {
+        if(protocol == null || protocol.isEmpty())
+            throw new IllegalArgumentException("Protocol is NULL or EMPTY: unable to build a prefix string");
+        if(type.isEmpty())
+            throw new IllegalStateException("Type is empty: unable to build a prefix string");
+
+        StringBuilder prefix = new StringBuilder();
+        prefix.append("_");
+        if(subType != null && !subType.isEmpty()) {
+            prefix.append(subType);
+            prefix.append(Constants.DNS_LABEL_DELIMITER);
+            prefix.append(Constants.SUBTYPE);
+            prefix.append(Constants.DNS_LABEL_DELIMITER);
+            prefix.append("_");
+        }
+        prefix.append(type);
+        prefix.append(Constants.DNS_LABEL_DELIMITER);
+        prefix.append("_");
+        prefix.append((protocol.contains("_")?protocol.subSequence(1, protocol.length()):protocol));
+        prefix.append(Constants.DNS_LABEL_DELIMITER);
+
+        return prefix.toString().toLowerCase();
     }
 
     @Override

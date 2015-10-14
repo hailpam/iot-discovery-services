@@ -9,13 +9,13 @@
 
 package org.eclipse.iot.tiaki.commons;
 
-import org.eclipse.iot.tiaki.domain.DiscoveryRecord;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.iot.tiaki.domain.DiscoveryRecord;
+import org.xbill.DNS.Record;
 
 /**
  * This class wraps in a status change event, intended as data referring the pair
@@ -25,7 +25,7 @@ import java.util.Objects;
 public class StatusChangeEvent implements Serializable
 {
 	private static final long serialVersionUID = -5316142743420677708L;
-	
+
 	/** A <code>String</code> defining the Header's format. */
 	private final String HEADER_FORMAT = " %-64s %-6s  %-64s\n";
 	/** A <code>String</code> defining the Body's row format. */
@@ -35,6 +35,11 @@ public class StatusChangeEvent implements Serializable
 	/** A <code>String</code> defining the row format without a Type
 	 * (rows formatted output. */
 	private final String ROW_FORMAT_NO_TYPE = "%-128s\n";
+    /** A <code>String</code> defining a simple row format (rows formatted output). */
+	private final String ROW_FORMAT_SIMPLE = "%s %s\n";
+	/** A <code>String</code> defining a simple row format without a Type
+	 * (rows formatted output. */
+	private final String ROW_FORMAT_NO_TYPE_SIMPLE = "%s\n";
 
 	 /** Performed DNS Query, expressed as the FQDN to be looked up. */
 	private final String query;
@@ -62,7 +67,8 @@ public class StatusChangeEvent implements Serializable
 	 * of Object's children.
 	 *
 	 * @param src	Source <code>Collection</code> to be casted/converted
-	 * @return	A <code>List</code> of <code>String</code> represented objects
+	 *
+     * @return	A <code>List</code> of <code>String</code> represented objects
 	 */
 	public static List<String> castedList(Collection<? extends Object> src)
 	{
@@ -73,9 +79,30 @@ public class StatusChangeEvent implements Serializable
             else
                 dst.add(obj.toString());
         }
-        
+
 		return dst;
 	}
+
+    /**
+	 * Build a <code>String</code> casted <code>List</code> from an <code>Array</code>
+	 * of objects
+	 *
+	 * @param src	Array to be casted/converted
+	 *
+     * @return	A <code>List</code> of <code>String</code> represented objects
+	 */
+    public static List<String> castedArray(Object[] src)
+    {
+        List<String> dst = new LinkedList<>();
+        for(Object obj: src) {
+            if(obj instanceof Record)
+                dst.add(((Record) obj).rdataToString());
+            else
+                dst.add(obj.toString());
+        }
+
+        return dst;
+    }
 
 	/**
 	 * Build a <code>String</code> casted <code>List</code> from a given <code>Object</code>
@@ -126,10 +153,10 @@ public class StatusChangeEvent implements Serializable
 		builder.append(String.format(";; RESPONSE\n"));
         if(results.size() > 0) {
             for(String result: results)
-                builder.append((type.isEmpty()?String.format(ROW_FORMAT_NO_TYPE, result):
-                                               String.format(ROW_FORMAT, type, result)));
-        }else builder.append(String.format("No Record for [%s]\n", query));
-        
+                builder.append((type.isEmpty()?String.format(ROW_FORMAT_NO_TYPE_SIMPLE, result):
+                                               String.format(ROW_FORMAT_SIMPLE, type, result)));
+        } else builder.append(String.format("No Record for [%s]\n", query));
+
 		return builder.toString();
 	}
 

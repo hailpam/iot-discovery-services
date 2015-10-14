@@ -121,7 +121,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         } catch(IllegalArgumentException exception) {
             throw new LookupException(StatusCode.ILLEGAL_FQDN, browsingDomain.fqdn());
         }
-        ValidatorUtil.isValidLabel(type.prefixString());
+        ValidatorUtil.isValidLabel(type);
         validatedConf();
         Set<ServiceInstance> result = null;
         try {
@@ -332,7 +332,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                     Record[] records = lookup(ctx);
                     set.getLabels().addAll(DnsUtil.extractNamesFromRecords(records));
                     statusChange(StatusChangeEvent.build(browsingDomain.fqdn(), Type.string(Type.PTR),
-                                    StatusChangeEvent.castedList(set.getLabels())));
+                                    StatusChangeEvent.castedArray(records)));
                 } catch (LookupException le) {
                     if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
                         throw  le;
@@ -433,8 +433,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
             Iterator<String> itrResolvers = resolvers.keySet().iterator();
 
             // retrive instances by subtype, skip the types listing step
-            boolean bySubType = type.hasSubType();
-            LookupContext ctx = DnsUtil.context(browsingDomain, "", type.prefixString(), type.getType(),
+            boolean bySubType = type.hasSubType(), byProto = type.hasProtocol();
+            LookupContext ctx = DnsUtil.context(browsingDomain, "", "", type.getType(),
                                                 Type.PTR, secValidation);
             String server = null;
             do {
@@ -449,12 +449,28 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                     Set<String> types = new TreeSet<>();
                     ctx.setDomainName(browsingDomain);
                     if(!bySubType) {
-                        types.addAll(DnsUtil.filterByType(type, retrieveDnsSdTypes(ctx)));  // service types
+                        if(!byProto) {
+                            ctx.setLabel(type.prefixString(Constants.TCP));
+                            types.addAll(DnsUtil.filterByType(type.prefixString(Constants.TCP),
+                                            retrieveDnsSdTypes(ctx)));  // TCP services
+
+                            ctx.setLabel(type.prefixString(Constants.UDP));
+                            types.addAll(DnsUtil.filterByType(type.prefixString(Constants.UDP),
+                                            retrieveDnsSdTypes(ctx)));  // UDP services
+                        } else {
+                            ctx.setLabel(type.prefixString());
+                            types.addAll(DnsUtil.filterByType(type.prefixString(), retrieveDnsSdTypes(ctx)));  // service types
+                        }
                         statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
                                     Type.string(ctx.getRrType()), StatusChangeEvent.castedList(types)));
-                    } else    // browsing by subtype
-                        types.add(browsingDomain.fqdnWithPrefix(type.prefixString()));
-
+                    } else {    // browsing by subtype
+                        if(!byProto) {
+                            types.add(browsingDomain.fqdnWithPrefix(type.prefixString(Constants.TCP)));
+                            types.add(browsingDomain.fqdnWithPrefix(type.prefixString(Constants.UDP)));
+                        } else
+                            types.add(browsingDomain.fqdnWithPrefix(type.prefixString()));
+                    }
+                    
                     Set<String> names = retrieveDnsNames(ctx, types);   // service names
                     ctx.setDomainName(browsingDomain);
                     statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),

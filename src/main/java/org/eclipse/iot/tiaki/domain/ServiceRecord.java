@@ -26,6 +26,8 @@ public final class ServiceRecord extends DiscoveryRecord
      * Service host.
      */
     private final String host;
+    /** Service protocol. */
+    private final String proto;
     /**
      * Service port.
      */
@@ -47,8 +49,18 @@ public final class ServiceRecord extends DiscoveryRecord
      */
     public static ServiceRecord build(SRVRecord srvRecord)
     {
-        return new ServiceRecord(srvRecord.getTarget().toString(), srvRecord.getPort(), srvRecord.getPriority(),
-                srvRecord.getWeight(), srvRecord.getTTL());
+        String proto = "N/A";
+        String owner = srvRecord.getName().toString();
+        if(owner.contains("_")) {
+            String[] labels = owner.replaceAll("_", "").split("\\.");
+            if(labels.length > 2)
+                proto = labels[2].toUpperCase();
+        }
+
+        return new ServiceRecord(srvRecord.getTarget().toString(),
+                                 proto,
+                                 srvRecord.getPort(), srvRecord.getPriority(),
+                                 srvRecord.getWeight(), srvRecord.getTTL());
     }
 
     /**
@@ -128,8 +140,8 @@ public final class ServiceRecord extends DiscoveryRecord
     @Override
     public String toString()
     {
-        return String.format("%d %s:%d", ttl,
-                (host.endsWith(".") ? host.substring(0, host.length() - 1) : host), port);
+        return String.format("%d %s %s:%d", ttl,
+                (host.endsWith(".") ? host.substring(0, host.length() - 1) : host), proto, port);
     }
 
     @Override
@@ -163,10 +175,11 @@ public final class ServiceRecord extends DiscoveryRecord
         return 0;
     }
 
-    private ServiceRecord(String host, int port, int priority, int weight, long ttl)
+    private ServiceRecord(String host, String proto, int port, int priority, int weight, long ttl)
     {
-        super(String.format("%s %d %d %d %d", host, port, priority, weight, ttl), ttl);
+        super(String.format("%s %s:%d %d %d %d", host, proto, port, priority, weight, ttl), ttl);
         this.host = host;
+        this.proto = proto;
         this.port = port;
         this.priority = priority;
         this.weight = weight;

@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.eclipse.iot.tiaki.commons.LookupContext;
 import org.eclipse.iot.tiaki.commons.StatusCode;
-import org.eclipse.iot.tiaki.domain.CompoundLabel;
 import org.eclipse.iot.tiaki.domain.Fqdn;
 import org.eclipse.iot.tiaki.domain.TextRecord;
 import org.eclipse.iot.tiaki.exceptions.ConfigurationException;
@@ -289,11 +288,11 @@ public final class DnsUtil
      *
      * @return A list of selected pointer records from the <code>CompoundLabel</code>
      */
-    public static Set<String> filterByType(CompoundLabel compType, Set<String> ptrs)
+    public static Set<String> filterByType(String compType, Set<String> ptrs)
     {
         Set<String> filtered = new TreeSet<>();
         for (String ptr : ptrs) {
-            if (ptr.contains(compType.prefixString())) {
+            if (ptr.contains(compType)) {
                 filtered.add(ptr);
             }
         }

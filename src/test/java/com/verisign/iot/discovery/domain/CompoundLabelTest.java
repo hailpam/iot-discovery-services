@@ -37,11 +37,26 @@ public class CompoundLabelTest
     public void testPrefixString()
     {
         type = new CompoundLabel("coap");
-        Assert.assertEquals("_coap._tcp.", type.prefixString());
+        try {
+            Assert.assertEquals("_coap._tcp.", type.prefixString());
+        } catch(Exception e) { /* expected */ }
         type = new CompoundLabel("coap", "subcoap", "udp");
         Assert.assertEquals("_subcoap._sub._coap._udp.", type.prefixString());
         type = new CompoundLabel("coap", "subcoap");
-        Assert.assertEquals("_subcoap._sub._coap._tcp.", type.prefixString());
+        try {
+            Assert.assertEquals("_subcoap._sub._coap._tcp.", type.prefixString());
+        } catch(Exception e) { /* expected */ }
+    }
+
+    @Test
+    public void testPrefixStringSpecifyingProto()
+    {
+        type = new CompoundLabel("coap");
+        Assert.assertEquals("_coap._tcp.", type.prefixString("tcp"));
+        type = new CompoundLabel("coap", "subcoap");
+        Assert.assertEquals("_subcoap._sub._coap._udp.", type.prefixString("udp"));
+        type = new CompoundLabel("coap", "subcoap");
+        Assert.assertEquals("_subcoap._sub._coap._tcp.", type.prefixString("tcp"));
     }
 
     @Test

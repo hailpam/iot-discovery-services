@@ -37,6 +37,7 @@ public class DnsServicesDiscoveryTest implements Observer
     public static final String SERVICE_DOMAIN_1 = "kfjljohydgsa.1.iotqa.end-points.com";
     public static final String SERVICE_DOMAIN_2 = "jnm6cmzwsmyq.2.iotverisign.com";
     public static final String SERVICE_DOMAIN_3 = "dns-sd.org";
+    public static final String SERVICE_DOMAIN_4 = "mcn366rzmd2a.1.iotverisign.com";
     public static final String TEST_DOMAIN = "com";
     public static final String SERVICE_LABEL = "coap";
     public static final String SERVICE_TYPE_1 = "mqft";
@@ -46,6 +47,7 @@ public class DnsServicesDiscoveryTest implements Observer
     public static final String SERVICE_TYPE_5 = "pdl-datastream";
     public static final String SERVICE_TYPE_6 = "ftp";
     public static final String SERVICE_TYPE_7 = "ipp";
+    public static final String SERVICE_TYPE_8 = "mqtt";
     public static final String SERVICE_SUBTYPE = "printer";
     public static final String SERVICE_NAME = "_coapspecial._udp.avu7unxcs7ia.1.iotverisign.com";
     public static final String SERVICE_TEXT = "f5j4pf5vaw1osjnj4nggdmy2ycl1axlm64knkrayhfsstcxe56ctwnxho1coap";
@@ -94,6 +96,35 @@ public class DnsServicesDiscoveryTest implements Observer
     }
 
     @Test
+    public void listServiceMultipleTxts()
+    {
+        try {
+            this.discovery = new DnsServicesDiscovery();
+            this.discovery.dnsSecDomain(Constants.DEFAULT_DNSSEC_DOMAIN)
+                          .dnsServer(InetAddress.getByName(DNS_RESOVLER))
+                          .trustAnchorDefault(Constants.DEFAULT_TRUST_ANCHOR)
+                          .introspected(true)
+                          .observer(this)
+                          .checkConfiguration(true);
+        } catch (UnknownHostException ex) {
+            Assert.fail("Expected correct initialization, not " + ex.toString());
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+        Fqdn name = new Fqdn(SERVICE_DOMAIN_3);
+        try {
+            CompoundLabel type = new CompoundLabel(SERVICE_TYPE_7, "", "tcp");
+            Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, type, false);
+            Assert.assertTrue(inst.size() > 0);
+        } catch (LookupException ex) {
+            Assert.fail("Expected successful lookup, not " + ex.toString());
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+
+    }
+
+    @Test
     public void listServiceInstancesBySubType()
     {
         try {
@@ -111,7 +142,7 @@ public class DnsServicesDiscoveryTest implements Observer
         }
         Fqdn name = new Fqdn(SERVICE_DOMAIN_3);
         try {
-            CompoundLabel type = new CompoundLabel(SERVICE_TYPE_3, SERVICE_SUBTYPE);
+            CompoundLabel type = new CompoundLabel(SERVICE_TYPE_3, SERVICE_SUBTYPE, "tcp");
             Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, type, false);
             Assert.assertTrue(inst.size() > 0);
         } catch (LookupException ex) {
@@ -140,10 +171,10 @@ public class DnsServicesDiscoveryTest implements Observer
         }
         Fqdn name = new Fqdn(SERVICE_DOMAIN_3);
         try {
-            CompoundLabel type = new CompoundLabel(SERVICE_TYPE_6);
+            CompoundLabel type = new CompoundLabel(SERVICE_TYPE_6, "", "tcp");
             Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, type, false);
             Assert.assertTrue(inst.size() > 0);
-            type = new CompoundLabel(SERVICE_TYPE_7);
+            type = new CompoundLabel(SERVICE_TYPE_7, "", "tcp");
             inst = this.discovery.listServiceInstances(name, type, false);
             Assert.assertTrue(inst.size() > 0);
         } catch (LookupException ex) {
@@ -172,10 +203,10 @@ public class DnsServicesDiscoveryTest implements Observer
         }
         Fqdn name = new Fqdn(SERVICE_DOMAIN_3);
         try {
-            CompoundLabel type = new CompoundLabel(SERVICE_TYPE_4);
+            CompoundLabel type = new CompoundLabel(SERVICE_TYPE_4, "", "tcp");
             Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, type, false);
             Assert.assertTrue(inst.size() > 0);
-            type = new CompoundLabel(SERVICE_TYPE_5);
+            type = new CompoundLabel(SERVICE_TYPE_5, "", "tcp");
             inst = this.discovery.listServiceInstances(name, type, false);
             Assert.assertTrue(inst.size() > 0);
         } catch (LookupException ex) {
@@ -185,6 +216,65 @@ public class DnsServicesDiscoveryTest implements Observer
         }
 
     }
+
+    @Test
+    public void listServiceInstancesBothUdpAndTcp()
+    {
+        try {
+            this.discovery = new DnsServicesDiscovery();
+            this.discovery.dnsSecDomain(Constants.DEFAULT_DNSSEC_DOMAIN)
+                          .dnsServer(InetAddress.getByName(DNS_RESOVLER))
+                          .trustAnchorDefault(Constants.DEFAULT_TRUST_ANCHOR)
+                          .introspected(true)
+                          .observer(this)
+                          .checkConfiguration(true);
+        } catch (UnknownHostException ex) {
+            Assert.fail("Expected correct initialization, not " + ex.toString());
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+        Fqdn name = new Fqdn(SERVICE_DOMAIN_4);
+        try {
+            CompoundLabel type = new CompoundLabel(SERVICE_TYPE_8);
+            Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, type, false);
+            Assert.assertTrue(inst.size() > 0);
+        } catch (LookupException ex) {
+            Assert.fail("Expected an empty set");
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+
+    }
+
+    @Test
+    public void listServiceInstancesBySubtypeBothUdpAndTcp()
+    {
+        try {
+            this.discovery = new DnsServicesDiscovery();
+            this.discovery.dnsSecDomain(Constants.DEFAULT_DNSSEC_DOMAIN)
+                          .dnsServer(InetAddress.getByName(DNS_RESOVLER))
+                          .trustAnchorDefault(Constants.DEFAULT_TRUST_ANCHOR)
+                          .introspected(true)
+                          .observer(this)
+                          .checkConfiguration(true);
+        } catch (UnknownHostException ex) {
+            Assert.fail("Expected correct initialization, not " + ex.toString());
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+        Fqdn name = new Fqdn(SERVICE_DOMAIN_3);
+        try {
+            CompoundLabel type = new CompoundLabel(SERVICE_TYPE_3, SERVICE_SUBTYPE);
+            Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, type, false);
+            Assert.assertTrue(inst.size() > 0);
+        } catch (LookupException ex) {
+            Assert.fail("Expected an empty set");
+        } catch (ConfigurationException ex) {
+            Assert.fail("Expected correct configuration, not " + ex.toString());
+        }
+
+    }
+
 
     @Test
     public void listServiceInstancesErrorDomainNotExistent()
@@ -204,7 +294,7 @@ public class DnsServicesDiscoveryTest implements Observer
         }
         Fqdn name = new Fqdn("habla.1.iotverisign.com");
         try {
-            CompoundLabel type = new CompoundLabel("mqtt");
+            CompoundLabel type = new CompoundLabel("mqtt", "", "tcp");
             Set<ServiceInstance> inst = this.discovery.listServiceInstances(name, type, false);
             Assert.assertTrue(true);
         } catch (LookupException ex) {
