@@ -470,7 +470,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                         } else
                             types.add(browsingDomain.fqdnWithPrefix(type.prefixString()));
                     }
-                    
+
                     Set<String> names = retrieveDnsNames(ctx, types);   // service names
                     ctx.setDomainName(browsingDomain);
                     statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
@@ -734,15 +734,11 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         {
             if (records != null) {
                 for (Record record : records) {
-                    if (record instanceof PTRRecord && pht == RrHolderType.ZONES) {
+                    if ((record instanceof PTRRecord && pht == RrHolderType.ZONES) ||
+                            (record instanceof PTRRecord && pht == RrHolderType.NAMES)) {
                         String zone = PointerRecord.build((PTRRecord) record).getRData();
                         if (zone != null) {
                             set.getLabels().add(zone);
-                        }
-                    } else if (record instanceof PTRRecord && pht == RrHolderType.NAMES) {
-                        String name = PointerRecord.build((PTRRecord) record).getRData();
-                        if (name != null) {
-                            set.getLabels().add(name);
                         }
                     } else if (record instanceof PTRRecord && pht == RrHolderType.TYPES) {
                         set.getLabels().add(PointerRecord.build((PTRRecord) record).getServiceType());
