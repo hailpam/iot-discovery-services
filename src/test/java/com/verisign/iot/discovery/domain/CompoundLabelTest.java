@@ -67,7 +67,7 @@ public class CompoundLabelTest
         Assert.assertTrue(CompoundLabel.isCompound("coap:tcp"));
         Assert.assertTrue(CompoundLabel.isCompound("coap:subcoap:udp"));
         try {
-            CompoundLabel.isCompound(":");
+            Assert.assertFalse(CompoundLabel.isCompound(":"));
         } catch(Exception e) { /* expected */ }
     }
 
@@ -78,6 +78,7 @@ public class CompoundLabelTest
         String[] test = null;
         try {
             test = CompoundLabel.labelComponents(label);
+            Assert.fail("Expected an exception for: " +":");
         } catch(Exception e) { /* expected */ }
 
         label = "coap:TCP";
@@ -99,6 +100,7 @@ public class CompoundLabelTest
         label = ":";
         try {
             test = CompoundLabel.labelComponents(label);
+            Assert.fail("Expected a parsing error for: '" +label +"'");
         } catch(Exception e) { /* expected */ }
 
         label = "a:";
@@ -107,10 +109,26 @@ public class CompoundLabelTest
             Assert.fail("Expected a parsing error for: '" +label +"'");
         } catch(Exception e) { /* expected */ }
 
+        label = ":a:";
+        try {
+            test = CompoundLabel.labelComponents(label);
+            Assert.fail("Expected a parsing error for: '" +label +"'");
+        } catch(Exception e) { /* expected */ }
+
         label = ":a";
         try {
             test = CompoundLabel.labelComponents(label);
+            Assert.fail("Expected a parsing error for: '" +label +"'");
         } catch(Exception e) { /* expected */ }
+
+        label = ":printer:udp";
+        try {
+            test = CompoundLabel.labelComponents(label);
+            Assert.fail("Expected a parsing error for: '" +label +"'");
+        } catch(Exception e) {
+        /* expected */
+            e.printStackTrace();
+        }
     }
 
 }

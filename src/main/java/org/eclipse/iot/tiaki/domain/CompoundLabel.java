@@ -56,10 +56,12 @@ public class CompoundLabel
         if(label == null || label.isEmpty())
             throw new IllegalArgumentException("Input label cannot be NULL or EMPTY");
 
-        if(label.length() > 1 && label.contains(SEPARATOR))
-            return (label.split(SEPARATOR).length >
-                    (label.length() - label.replace(SEPARATOR, "").length()));
-        else
+        if(label.length() > 1 && label.contains(SEPARATOR)) {
+            int nrTokens = label.split(SEPARATOR).length;
+            return (nrTokens > (label.length() - label.replace(SEPARATOR, "").length())) &&
+                    !label.split(SEPARATOR)[0].isEmpty() &&
+                    !label.split(SEPARATOR)[nrTokens - 1].isEmpty();
+        } else
             return false;
     }
 
@@ -96,7 +98,7 @@ public class CompoundLabel
 
             return parts;
         } else
-            throw new IllegalArgumentException("input 'label' should respect the format: '<label[<:sublabel:proto>|<:proto>]>'");
+            throw new IllegalArgumentException("malformed 'Compound Label' supposed to be '<label[<:sublabel:proto>|<:proto>]>''");
     }
 
      /**
