@@ -31,7 +31,7 @@ public class CompoundLabel
      *
      * @param label A <code>String</code> supposed to be formatted as above.
      *
-     * @return  <code>true</code> iff the label respect the pattern
+     * @return  <code>true</code> iff the label contains the expected separator
      */
     public final static boolean isCompound(String label)
     {
@@ -43,6 +43,26 @@ public class CompoundLabel
         else
             return false;
     }
+
+    /**
+     * Takes a string label and matches it against the expected pattern.
+     *
+     * @param label A <code>String</code> supposed to be formatted as above.
+     *
+     * @return  <code>true</code> iff the label respect the pattern
+     */
+    public final static boolean isValidCompound(String label)
+    {
+        if(label == null || label.isEmpty())
+            throw new IllegalArgumentException("Input label cannot be NULL or EMPTY");
+
+        if(label.length() > 1 && label.contains(SEPARATOR))
+            return (label.split(SEPARATOR).length >
+                    (label.length() - label.replace(SEPARATOR, "").length()));
+        else
+            return false;
+    }
+
 
     /**
      * Splits up a label into its components. The label is supposed to follow the above specified
@@ -59,12 +79,9 @@ public class CompoundLabel
         parts[1] = "";
         parts[2] = "";
 
-        if(isCompound(label) && label.length() > 1) {
+        if(isValidCompound(label) && label.length() > 1) {
             String[] splitted = label.split(SEPARATOR);
-            if(splitted[0].isEmpty())
-                throw new IllegalArgumentException("Malformed 'label': input label should respect the format: '<label[<:sublabel:proto>|<:proto>]>'");
-            else
-                parts[0] = splitted[0];
+            parts[0] = splitted[0];
             if(splitted.length > 1) {
                 if(!splitted[1].isEmpty() && (splitted[1].equalsIgnoreCase(Constants.TCP.replaceAll("_", ""))
                         || splitted[1].equalsIgnoreCase(Constants.UDP.replaceAll("_", "")))) {
@@ -79,7 +96,7 @@ public class CompoundLabel
 
             return parts;
         } else
-            throw new IllegalArgumentException("Input label should respect the format: '<label[<:sublabel:proto>|<:proto>]>'");
+            throw new IllegalArgumentException("input 'label' should respect the format: '<label[<:sublabel:proto>|<:proto>]>'");
     }
 
      /**

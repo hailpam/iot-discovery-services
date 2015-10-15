@@ -104,10 +104,8 @@ public class CompoundLabelTest
         label = "a:";
         try {
             test = CompoundLabel.labelComponents(label);
-            Assert.assertEquals("a", test[0]);
-            Assert.assertEquals("", test[2]);
-            Assert.assertEquals("", test[1]);
-        } catch(Exception e) { Assert.fail("Expected a parsing of: " +label);  }
+            Assert.fail("Expected a parsing error for: '" +label +"'");
+        } catch(Exception e) { /* expected */ }
 
         label = ":a";
         try {
