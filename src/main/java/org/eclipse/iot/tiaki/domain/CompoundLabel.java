@@ -98,7 +98,7 @@ public class CompoundLabel
 
             return parts;
         } else
-            throw new IllegalArgumentException("malformed 'Compound Label' supposed to be '<label[<:sublabel:proto>|<:proto>]>''");
+            throw new IllegalArgumentException("malformed 'Compound Label' supposed to be '<label[<:sublabel:proto>|<:proto>]>'");
     }
 
      /**
