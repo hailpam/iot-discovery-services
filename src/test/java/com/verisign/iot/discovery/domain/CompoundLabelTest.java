@@ -125,10 +125,7 @@ public class CompoundLabelTest
         try {
             test = CompoundLabel.labelComponents(label);
             Assert.fail("Expected a parsing error for: '" +label +"'");
-        } catch(Exception e) {
-        /* expected */
-            e.printStackTrace();
-        }
+        } catch(Exception e) { /* expected */ }
     }
 
 }
