@@ -10,6 +10,7 @@
 package org.eclipse.iot.tiaki.domain;
 
 import java.util.Objects;
+import org.eclipse.iot.tiaki.commons.Constants;
 import org.xbill.DNS.SRVRecord;
 
 /**
@@ -51,11 +52,10 @@ public final class ServiceRecord extends DiscoveryRecord
     {
         String proto = "N/A";
         String owner = srvRecord.getName().toString();
-        if(owner.contains("_")) {
-            String[] labels = owner.replaceAll("_", "").split("\\.");
-            if(labels.length > 2)
-                proto = labels[2].toUpperCase();
-        }
+        if(owner.contains(Constants.TCP))
+            proto = Constants.TCP.replace("_", "").toUpperCase();
+        else if(owner.contains(Constants.UDP))
+            proto = Constants.UDP.replace("_", "").toUpperCase();
 
         return new ServiceRecord(srvRecord.getTarget().toString(),
                                  proto,
