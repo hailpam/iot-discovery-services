@@ -68,7 +68,7 @@ public final class DnsUtil
     private static final Map<String, String> decodingTable;
 
     // TODO comprehensive escaping procedure
-    // static fill up
+    // static fill up: UTF-8 double bytes (decimal) sequences to Unicode characters
     static {
         decodingTable = new HashMap<>();
         decodingTable.put("195160", "à");
@@ -107,6 +107,8 @@ public final class DnsUtil
         decodingTable.put("195159", "ß");
 
         decodingTable.put("226128153", "'");
+
+        decodingTable.put("032", " ");
     }
 
     /**
