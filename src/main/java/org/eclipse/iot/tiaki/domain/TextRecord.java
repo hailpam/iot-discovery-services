@@ -30,14 +30,17 @@ public final class TextRecord extends DiscoveryRecord
     public final static TextRecord build( Set<TextRecord> txtsRec )
     {
         StringBuilder flattened = new StringBuilder();
+        String owner = null;
         long max = Long.MIN_VALUE;
         for(TextRecord txt: txtsRec) {
             flattened.append(txt.getRData());
             if(txt.getTtl() > max)
                 max = txt.getTtl();
+            if(owner == null)
+                owner = txt.getOwner();
         }
 
-        return new TextRecord(flattened.toString(), max);
+        return new TextRecord(owner, flattened.toString(), max);
     }
 
 	/**
@@ -58,6 +61,10 @@ public final class TextRecord extends DiscoveryRecord
 		super( txtData, ttl );
 	}
 
+    private TextRecord ( String owner, String txtData, long ttl )
+    {
+		super( owner, txtData, ttl );
+	}
 
 	@Override
 	public String getServiceType ()

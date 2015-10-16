@@ -87,7 +87,8 @@ public class PointerRecord extends DiscoveryRecord
 
     private PointerRecord(PTRRecord ptrRecord)
     {
-        super(ptrRecord.rdataToString(), ptrRecord.getTTL());
+        super(ptrRecord.getName().toString(),
+                ptrRecord.rdataToString(), ptrRecord.getTTL());
     }
 
     @Override

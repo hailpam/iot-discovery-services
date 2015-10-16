@@ -20,7 +20,9 @@ public class CertRecord extends DiscoveryRecord
 
 	public CertRecord ( TLSARecord tlsaRecord )
     {
-		super( base16.toString( tlsaRecord.getCertificateAssociationData() ), tlsaRecord.getTTL());
+		super( tlsaRecord.getName().toString(),
+               base16.toString( tlsaRecord.getCertificateAssociationData() ),
+               tlsaRecord.getTTL());
 		this.tlsaRecord = tlsaRecord;
 	}
 
@@ -66,11 +68,18 @@ public class CertRecord extends DiscoveryRecord
      */
     public int certSelector() { return tlsaRecord.getSelector(); }
 
-    
+
 	@Override
-	public String toDisplay ()
+	public String toString()
     {
 		return String.format("%d %s", ttl, rData);
+	}
+
+    @Override
+	public String toDisplay()
+    {
+		return String.format("%d %s %d %d %d %s", ttl, "TLSA",
+                                certMatchingType(), certUsage(), certSelector(), rData);
 	}
 
 }

@@ -310,6 +310,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         public Set<String> serviceTypes(Fqdn browsingDomain, boolean secValidation)
                                 throws LookupException, ConfigurationException
         {
+            statusChange(FormattingUtil.info((secValidation?"Secure Resolving mode":"Insecure Resolving mode")));
             Map<String, Resolver> resolvers = retrieveResolvers(false);
             Map<String, Resolver> valResolvers = retrieveResolvers(true);
 
@@ -346,6 +347,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                     }
                 }
             } while (itrResolvers.hasNext() && set.getLabels().isEmpty());
+            statusChange(FormattingUtil.answer());
 
             return set.getLabels();
         }
@@ -368,6 +370,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         public Set<TextRecord> serviceTexts(Fqdn browsingDomain, String label, boolean secValidation)
                                     throws LookupException, ConfigurationException
         {
+            statusChange(FormattingUtil.info((secValidation?"Secure Resolving mode":"Insecure Resolving mode")));
             Map<String, Resolver> resolvers = retrieveResolvers(false);
             Map<String, Resolver> valResolvers = retrieveResolvers(true);
 
@@ -389,7 +392,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                     Record[] records = lookup(ctx);
                     parseRecords(records, set, RrHolderType.OTHER);
                     statusChange(StatusChangeEvent.build(browsingDomain.fqdnWithPrefix(label),
-                                    Type.string(Type.TXT), StatusChangeEvent.castedList(set.getTexts())));
+                                    "", StatusChangeEvent.castedList(set.getTexts())));
                 } catch (LookupException le) {
                     if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
                         throw  le;
@@ -403,6 +406,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                     }
                 }
             } while (itrResolvers.hasNext() && set.getTexts().isEmpty());
+            statusChange(FormattingUtil.answer());
 
             return set.getTexts();
         }
@@ -425,6 +429,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
         public Set<ServiceInstance> serviceInstances(Fqdn browsingDomain, CompoundLabel type, boolean secValidation)
                                         throws LookupException, ConfigurationException
         {
+            statusChange(FormattingUtil.info((secValidation?"Secure Resolving mode":"Insecure Resolving mode")));
             Map<String, Resolver> resolvers = retrieveResolvers(false);
             Map<String, Resolver> valResolvers = retrieveResolvers(true);
 
@@ -489,6 +494,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                     }
                 }
             } while (itrResolvers.hasNext() && instances.isEmpty());
+            statusChange(FormattingUtil.answer());
 
             return instances;
         }
@@ -514,6 +520,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                                            boolean secValidation)
                                 throws LookupException, ConfigurationException
         {
+            statusChange(FormattingUtil.info((secValidation?"Secure Resolving mode":"Insecure Resolving mode")));
             Map<String, Resolver> resolvers = retrieveResolvers(false);
             Map<String, Resolver> valResolvers = retrieveResolvers(true);
 
@@ -540,6 +547,8 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                             tlsaDiscoveryRecords.add(new CertRecord((TLSARecord) record));
                         }
                     }
+                    statusChange(StatusChangeEvent.build(ctx.getDomainName().fqdnWithPrefix(ctx.getPrefix()),
+                                    "", StatusChangeEvent.castedList(tlsaDiscoveryRecords)));
                 } catch (LookupException le) {
                     if (le.dnsError().equals(StatusCode.NETWORK_ERROR) && !itrResolvers.hasNext()) {
                         throw  le;
@@ -554,6 +563,7 @@ public class DnsServicesDiscovery extends Configurable implements DnsDiscovery
                     }
                 }
             } while (itrResolvers.hasNext() && tlsaDiscoveryRecords.isEmpty());
+            statusChange(FormattingUtil.answer());
 
             return tlsaDiscoveryRecords;
         }

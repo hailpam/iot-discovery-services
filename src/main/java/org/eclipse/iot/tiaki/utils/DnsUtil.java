@@ -12,6 +12,7 @@ package org.eclipse.iot.tiaki.utils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -59,6 +60,54 @@ public final class DnsUtil
     private static final String MISSING_KEY = "missing dnskey rrset";
     /** DNSSEC response NSEC3 related text string. */
     private static final String NSEC3_NO_DS = "nsec3s proved no ds";
+
+    /** Regex to extract the description from a DNS-SD QName */
+    private static final String DNS_SD_DESC_EXT_PATTERN = ".(_[a-z-]+.){2}.+";
+
+    /** Translation table for double bytes UTF-8 characters */
+    private static final Map<String, String> decodingTable;
+
+    // TODO comprehensive escaping procedure
+    // static fill up
+    static {
+        decodingTable = new HashMap<>();
+        decodingTable.put("195160", "à");
+        decodingTable.put("195161", "á");
+        decodingTable.put("195162", "â");
+        decodingTable.put("195163", "ã");
+        decodingTable.put("195164", "ä");
+
+        decodingTable.put("195166", "æ");
+        decodingTable.put("195167", "ç");
+
+        decodingTable.put("195168", "è");
+        decodingTable.put("195169", "é");
+        decodingTable.put("195170", "ê");
+        decodingTable.put("195171", "ë");
+        decodingTable.put("195172", "ì");
+        decodingTable.put("195173", "í");
+        decodingTable.put("195174", "î");
+        decodingTable.put("195175", "ï");
+        decodingTable.put("195177", "ñ");
+        decodingTable.put("195178", "ò");
+        decodingTable.put("195179", "ó");
+        decodingTable.put("195180", "ô");
+        decodingTable.put("195181", "õ");
+        decodingTable.put("195182", "ö");
+        decodingTable.put("195184", "ø");
+        decodingTable.put("195185", "œ");
+        decodingTable.put("195186", "ù");
+        decodingTable.put("195187", "ú");
+        decodingTable.put("195188", "û");
+        decodingTable.put("195188", "ü");
+
+        decodingTable.put("195132", "Ä");
+        decodingTable.put("195150", "Ö");
+        decodingTable.put("195156", "Ü");
+        decodingTable.put("195159", "ß");
+
+        decodingTable.put("226128153", "'");
+    }
 
     /**
      * Instantiate a DNS <code>Resolver</code> by the provided Server. In case of DNSSEC validation
@@ -325,6 +374,23 @@ public final class DnsUtil
         ctx.setSecure(sec);
 
         return ctx;
+    }
+
+    /**
+     * Extracts an unescaped description from a DNS-SD QName
+     *
+     * @param qname     Domain name to be used for this extraction process
+     * @return      Unescaped DNS-SD description
+     */
+    public static String extractDnsSdDescription(String qname)
+    {
+        String escaped = qname.replaceAll(DNS_SD_DESC_EXT_PATTERN, "").
+                                replaceAll("\\\\", "").
+                                replaceAll("032", " ");
+        for(String key: decodingTable.keySet())
+            escaped = escaped.replaceAll(key, decodingTable.get(key));
+
+        return escaped;
     }
 
     private DnsUtil()

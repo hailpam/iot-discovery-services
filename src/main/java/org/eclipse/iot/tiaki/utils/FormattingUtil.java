@@ -36,7 +36,31 @@ public final class FormattingUtil
 	 * Server output template.
 	 */
 	private static final String SERVER_OUTPUT = ";; SERVER\n%s\n";
+    /**
+	 * Answer template.
+	 */
+    private static final String ANSWER_OUTPUT = ";; ANSWER";
+    /**
+	 * Info template.
+	 */
+    private static final String INFO_OUTPUT = ";; INFO\n%s\n";
 
+
+
+    /**
+     * Builds up an answer output
+     *
+     * @return  Answer output
+     */
+    public static String answer() { return ANSWER_OUTPUT; }
+
+    /**
+     * Builds up an info output
+     *
+     * @param what  A content to show up
+     * @return  Formatted output
+     */
+    public static String info(String what) { return String.format(INFO_OUTPUT, what); }
 
 	/**
 	 * Build up a formatted message for resolver server.
@@ -146,7 +170,6 @@ public final class FormattingUtil
     {
         return String.format("Unable to retrieve the DNS label [%s]", forWhat);
     }
-
 
 	private FormattingUtil ()
     {

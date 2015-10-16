@@ -18,7 +18,10 @@ import java.util.Objects;
  */
 public abstract class DiscoveryRecord implements Comparable<DiscoveryRecord>
 {
-
+    /**
+     * A <code>String</code> containing the owner.
+     */
+    protected final String owner;
     /**
      * A <code>String</code> containing this resource record raw textual data.
      */
@@ -35,8 +38,19 @@ public abstract class DiscoveryRecord implements Comparable<DiscoveryRecord>
 
     public DiscoveryRecord(String rData, long ttl)
     {
+        this("N/A", rData, ttl);
+    }
+
+    public DiscoveryRecord(String owner, String rData, long ttl)
+    {
+        this.owner = owner;
         this.rData = rData;
         this.ttl = ttl;
+    }
+
+    public String getOwner()
+    {
+        return this.owner;
     }
 
     public String getRData()

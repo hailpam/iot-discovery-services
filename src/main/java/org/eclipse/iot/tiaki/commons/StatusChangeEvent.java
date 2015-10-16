@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import org.eclipse.iot.tiaki.domain.DiscoveryRecord;
+import org.eclipse.iot.tiaki.utils.FormattingUtil;
 import org.xbill.DNS.Record;
 
 /**
@@ -150,14 +151,13 @@ public class StatusChangeEvent implements Serializable
 	public String rowFormatted()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append(String.format(";; RESPONSE\n"));
         if(results.size() > 0) {
             for(String result: results)
                 builder.append((type.isEmpty()?String.format(ROW_FORMAT_NO_TYPE_SIMPLE, result):
                                                String.format(ROW_FORMAT_SIMPLE, type, result)));
         } else builder.append(String.format("No Record for [%s]\n", query));
 
-		return builder.toString();
+		return FormattingUtil.response(builder.toString());
 	}
 
 	public String getQuery() { return query; }

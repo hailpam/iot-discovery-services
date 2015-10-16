@@ -11,6 +11,7 @@ package org.eclipse.iot.tiaki.domain;
 
 import java.util.Objects;
 import org.eclipse.iot.tiaki.commons.Constants;
+import org.eclipse.iot.tiaki.utils.DnsUtil;
 import org.xbill.DNS.SRVRecord;
 
 /**
@@ -57,7 +58,8 @@ public final class ServiceRecord extends DiscoveryRecord
         else if(owner.contains(Constants.UDP))
             proto = Constants.UDP.replace("_", "").toUpperCase();
 
-        return new ServiceRecord(srvRecord.getTarget().toString(),
+        return new ServiceRecord(srvRecord.getName().toString(),
+                                 srvRecord.getTarget().toString(),
                                  proto,
                                  srvRecord.getPort(), srvRecord.getPriority(),
                                  srvRecord.getWeight(), srvRecord.getTTL());
@@ -140,7 +142,7 @@ public final class ServiceRecord extends DiscoveryRecord
     @Override
     public String toString()
     {
-        return String.format("%d %s %s:%d", ttl,
+        return String.format("%d \"%s\" %s %s:%d", ttl, DnsUtil.extractDnsSdDescription(owner),
                 (host.endsWith(".") ? host.substring(0, host.length() - 1) : host), proto, port);
     }
 
@@ -178,6 +180,17 @@ public final class ServiceRecord extends DiscoveryRecord
     private ServiceRecord(String host, String proto, int port, int priority, int weight, long ttl)
     {
         super(String.format("%s %s:%d %d %d %d", host, proto, port, priority, weight, ttl), ttl);
+        this.host = host;
+        this.proto = proto;
+        this.port = port;
+        this.priority = priority;
+        this.weight = weight;
+    }
+
+    private ServiceRecord(String owner, String host, String proto, int port, int priority, int weight, long ttl)
+    {
+        super(owner, String.format("\"%s\" %s %s:%d %d %d %d",
+                        DnsUtil.extractDnsSdDescription(owner), host, proto, port, priority, weight, ttl), ttl);
         this.host = host;
         this.proto = proto;
         this.port = port;
