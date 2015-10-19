@@ -1,4 +1,8 @@
-# iot-discovery-services 
+# IoT Discovery Services Core API
+
+## Intro
+
+# iot-discovery-services
 Welcome to the iot-discovery-services project.
 The main purpose of the discovery library is to allow its clients (device, gateway, etc.) to securely discover services (eg. a message broker) and configuration (eg. topic names) for a specific service type (eg. MQTT) in a given domain name.
 It implements the [DNS-SD IETF RFC 7673 ](https://tools.ietf.org/html/rfc6763) which specifies how DNS resource records are named and structured to facilitate service discovery.
@@ -14,7 +18,7 @@ $ gradle clean fatJar
 
 ##Service Discovery workflow
 
-In order to perform service discovery, the first thing to do is to add the relevant records to DNS. As per the RFC, you need to provision a <service.domain> PTR record, which will point to the corresponding <instance.service.domain> SRV record(s). 
+In order to perform service discovery, the first thing to do is to add the relevant records to DNS. As per the RFC, you need to provision a <service.domain> PTR record, which will point to the corresponding <instance.service.domain> SRV record(s).
 After the provisioning is done, you can lookup service instance names by service types for the domain name.
 
 On the image below, a user is provisioning a mqtt service with the URL "iot.eclipse.org:1883" under domain name "example.com".
@@ -68,7 +72,7 @@ public class Discoverer {
 ```
 
 ## Using DNSSEC to secure the discovery process
-The Domain Name System Security Extensions (DNSSec) is a technology designed to ensure the authenticity of DNS records  by applying PKI principles. The iot-discovery-services library validates the DNSSec records, which ensures that they are trustworthy. 
+The Domain Name System Security Extensions (DNSSec) is a technology designed to ensure the authenticity of DNS records  by applying PKI principles. The iot-discovery-services library validates the DNSSec records, which ensures that they are trustworthy.
 
 ## Going further into DNS-SD DNS Records
 The iot-discovery-services library abstracts the complexity of using raw DNS records. For the sake of completeness, this section describes a concrete example of provisioned DNS Records for service discovery. We use the command line [bind utility dig](https://www.isc.org/downloads/bind/) to retrieve the DNS Records. The domain name used to host this example is 7pqg77uhvroq.1.iotverisign.com.
@@ -82,8 +86,8 @@ $ dig +noall +answer _services._dns-sd._udp.7pqg77uhvroq.1.iotverisign.com PTR
 _services._dns-sd._udp.7pqg77uhvroq.1.iotverisign.com. 5 IN PTR	_mqtt._tcp.tkatlvzsjaoq.1.iotverisign.com.
 
 ```
-The response indicates that there is one service type which label is "_mqtt._tcp" at "tkatlvzsjaoq.1.iotverisign.com". 
- 
+The response indicates that there is one service type which label is "_mqtt._tcp" at "tkatlvzsjaoq.1.iotverisign.com".
+
 ### Listing service names
 Using the service type label, this command will list the existing names for "mqtt" services. It is a query for PTR records for the "_mqtt._tcp" label.
 
